@@ -1,0 +1,2255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semantic Compass — Navigate the Conceptual Landscape</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --bg-2: #0f0f0f;
+            --bg-3: #141414;
+            --bg-4: #1a1a1a;
+            --fg: #f4f4f4;
+            --fg-2: #b8b8b8;
+            --fg-muted: #6a6a6a;
+            --fg-dim: #3a3a3a;
+            --accent: #ccff33;
+            --accent-2: #a8d420;
+            --accent-soft: rgba(204, 255, 51, 0.12);
+            --accent-glow: rgba(204, 255, 51, 0.35);
+            --border: rgba(255, 255, 255, 0.06);
+            --border-2: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        input {
+            font-family: inherit;
+        }
+
+        ::selection {
+            background: var(--accent);
+            color: #0a0a0a;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* ===== Navigation ===== */
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 36px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            height: 64px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: -0.01em;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .logo-mark {
+            width: 24px;
+            height: 24px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-mark::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, var(--accent), var(--accent-2) 60%, #4a5e10 100%);
+            box-shadow: 0 0 14px var(--accent-glow);
+        }
+
+        .logo-mark::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #0a0a0a;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 36px;
+            list-style: none;
+            font-size: 13px;
+        }
+
+        .nav-links li {
+            color: var(--fg-muted);
+            cursor: pointer;
+            transition: color 0.2s;
+            position: relative;
+            padding: 4px 0;
+        }
+
+        .nav-links li:hover {
+            color: var(--fg);
+        }
+
+        .nav-links li.active {
+            color: var(--fg);
+        }
+
+        .nav-links li.active::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -22px;
+            height: 1px;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .nav-icon-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--fg-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .nav-icon-btn:hover {
+            color: var(--fg);
+            border-color: var(--border-2);
+        }
+
+        .profile-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+            border: 1px solid var(--border-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--fg-2);
+            transition: all 0.2s;
+        }
+
+        .profile-icon:hover {
+            border-color: var(--accent);
+        }
+
+        /* ===== Landing Page ===== */
+        .landing {
+            position: relative;
+            min-height: calc(100vh - 64px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 24px 80px;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .landing-bg {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .landing-bg::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 900px;
+            height: 900px;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, rgba(204, 255, 51, 0.06) 0%, transparent 55%);
+            animation: pulseBg 8s ease-in-out infinite;
+        }
+
+        @keyframes pulseBg {
+
+            0%,
+            100% {
+                opacity: 0.6;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.08);
+            }
+        }
+
+        .landing-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 15% 25%, rgba(204, 255, 51, 0.04) 0%, transparent 25%),
+                radial-gradient(circle at 85% 75%, rgba(100, 180, 255, 0.03) 0%, transparent 30%),
+                radial-gradient(circle at 75% 20%, rgba(204, 255, 51, 0.025) 0%, transparent 20%);
+        }
+
+        /* Floating decorative nodes in landing */
+        .float-node {
+            position: absolute;
+            color: var(--fg-dim);
+            font-size: 12px;
+            letter-spacing: 0.02em;
+            pointer-events: none;
+            animation: floatDrift 14s ease-in-out infinite;
+            opacity: 0.5;
+        }
+
+        @keyframes floatDrift {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            33% {
+                transform: translate(8px, -12px);
+            }
+
+            66% {
+                transform: translate(-6px, 8px);
+            }
+        }
+
+        .landing-content {
+            position: relative;
+            z-index: 2;
+            max-width: 920px;
+            width: 100%;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            letter-spacing: 0.18em;
+            color: var(--fg-muted);
+            background: rgba(255, 255, 255, 0.025);
+            border: 1px solid var(--border);
+            padding: 6px 14px;
+            border-radius: 100px;
+            margin-bottom: 28px;
+        }
+
+        .eyebrow-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .landing h1 {
+            font-size: clamp(40px, 6.5vw, 76px);
+            font-weight: 600;
+            letter-spacing: -0.035em;
+            line-height: 1.02;
+            margin-bottom: 24px;
+        }
+
+        .landing h1 .accent-word {
+            color: var(--accent);
+            font-family: 'Instrument Serif', serif;
+            font-style: italic;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+        }
+
+        .landing .subhead {
+            font-size: 15.5px;
+            color: var(--fg-2);
+            max-width: 580px;
+            line-height: 1.6;
+            margin: 0 auto 44px;
+            font-weight: 400;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #131313;
+            border: 1px solid var(--border-2);
+            border-radius: 100px;
+            padding: 6px 6px 6px 22px;
+            width: 100%;
+            max-width: 620px;
+            height: 62px;
+            margin: 0 auto;
+            box-shadow: 0 12px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+            transition: all 0.25s ease;
+        }
+
+        .search-box:focus-within {
+            border-color: rgba(204, 255, 51, 0.4);
+            box-shadow: 0 12px 50px rgba(0, 0, 0, 0.5), 0 0 0 4px rgba(204, 255, 51, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        }
+
+        .search-icon {
+            width: 18px;
+            height: 18px;
+            color: var(--fg-muted);
+            flex-shrink: 0;
+        }
+
+        .search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--fg);
+            font-size: 15px;
+            padding: 0 18px;
+            min-width: 0;
+        }
+
+        .search-input::placeholder {
+            color: var(--fg-muted);
+        }
+
+        .map-btn {
+            background: var(--accent);
+            color: #0a0a0a;
+            border: none;
+            border-radius: 100px;
+            padding: 0 26px;
+            height: 50px;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .map-btn:hover {
+            box-shadow: 0 0 30px rgba(204, 255, 51, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .map-btn:active {
+            transform: translateY(0);
+        }
+
+        .sample-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 38px;
+            flex-wrap: wrap;
+        }
+
+        .prototype-tag {
+            font-size: 10px;
+            letter-spacing: 0.22em;
+            color: var(--fg-dim);
+            border: 1px solid var(--border);
+            padding: 5px 9px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .sample-pills {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .sample-pill {
+            background: rgba(255, 255, 255, 0.025);
+            border: 1px solid var(--border);
+            color: var(--fg-2);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 13px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .sample-pill::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--fg-dim);
+            transition: all 0.2s;
+        }
+
+        .sample-pill:hover {
+            background: rgba(204, 255, 51, 0.07);
+            border-color: rgba(204, 255, 51, 0.25);
+            color: var(--accent);
+        }
+
+        .sample-pill:hover::before {
+            background: var(--accent);
+            box-shadow: 0 0 6px var(--accent);
+        }
+
+        /* ===== Landing Footer ===== */
+        .landing-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 22px 36px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11.5px;
+            color: var(--fg-dim);
+            border-top: 1px solid var(--border);
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(10px);
+            z-index: 3;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 22px;
+        }
+
+        .footer-links span {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .footer-links span:hover {
+            color: var(--fg-2);
+        }
+
+        .footer-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+        }
+
+        /* ===== Exploration View ===== */
+        .exploration {
+            display: none;
+            height: calc(100vh - 64px);
+            grid-template-columns: 256px 1fr 380px;
+            overflow: hidden;
+        }
+
+        .exploration.active {
+            display: grid;
+        }
+
+        /* ===== Left Sidebar ===== */
+        .sidebar {
+            border-right: 1px solid var(--border);
+            background: var(--bg-2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-head {
+            padding: 22px 22px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-label {
+            font-size: 10px;
+            letter-spacing: 0.22em;
+            color: var(--fg-dim);
+            margin-bottom: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-label .live-pip {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 6px var(--accent);
+            animation: blink 2s infinite;
+        }
+
+        .session-tree {
+            font-size: 14px;
+            color: var(--fg);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .session-tree .tree-icon {
+            color: var(--accent);
+        }
+
+        .sidebar-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 22px;
+        }
+
+        .trail-list {
+            position: relative;
+            padding-left: 18px;
+        }
+
+        .trail-list::before {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 8px;
+            bottom: 12px;
+            width: 1px;
+            background: linear-gradient(to bottom, var(--accent) 0%, rgba(204, 255, 51, 0.2) 40%, var(--border) 100%);
+        }
+
+        .trail-item {
+            position: relative;
+            padding: 6px 0 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .trail-item::before {
+            content: '';
+            position: absolute;
+            left: -18px;
+            top: 11px;
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: var(--bg-2);
+            border: 1.5px solid var(--fg-dim);
+            transition: all 0.25s;
+            z-index: 2;
+        }
+
+        .trail-item.active::before {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(204, 255, 51, 0.15), 0 0 12px var(--accent-glow);
+        }
+
+        .trail-item:hover::before {
+            border-color: var(--fg-2);
+        }
+
+        .trail-item.active:hover::before {
+            border-color: var(--accent);
+        }
+
+        .trail-word {
+            font-size: 13px;
+            color: var(--fg-muted);
+            transition: color 0.2s;
+            font-weight: 500;
+        }
+
+        .trail-item.active .trail-word {
+            color: var(--accent);
+        }
+
+        .trail-item:hover .trail-word {
+            color: var(--fg);
+        }
+
+        .trail-item.active:hover .trail-word {
+            color: var(--accent);
+        }
+
+        .trail-meta {
+            display: flex;
+            gap: 10px;
+            font-size: 10px;
+            color: var(--fg-dim);
+            margin-top: 3px;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.04em;
+        }
+
+        .sidebar-foot {
+            padding: 18px 22px;
+            border-top: 1px solid var(--border);
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11.5px;
+            color: var(--fg-muted);
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .stat-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .stat-row .value {
+            color: var(--fg);
+            font-variant-numeric: tabular-nums;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+        }
+
+        .stat-row .value.accent {
+            color: var(--accent);
+        }
+
+        /* ===== Center Canvas ===== */
+        .canvas {
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(ellipse 60% 50% at center, #1a1a1a 0%, #0d0d0d 60%, #080808 100%);
+        }
+
+        .canvas::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(204, 255, 51, 0.04) 0%, transparent 45%);
+            pointer-events: none;
+        }
+
+        /* Subtle grid pattern */
+        .canvas::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+        }
+
+        .canvas-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 30;
+        }
+
+        .canvas-label {
+            position: absolute;
+            top: 22px;
+            left: 24px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 10.5px;
+            color: var(--fg-dim);
+            letter-spacing: 0.18em;
+            font-family: 'JetBrains Mono', monospace;
+            pointer-events: auto;
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+            animation: blink 2s infinite;
+        }
+
+        .canvas-coords {
+            position: absolute;
+            top: 22px;
+            right: 24px;
+            display: flex;
+            gap: 14px;
+            font-size: 10.5px;
+            color: var(--fg-dim);
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+            pointer-events: auto;
+        }
+
+        .canvas-coords span {
+            display: flex;
+            gap: 6px;
+        }
+
+        .canvas-coords .label {
+            color: var(--fg-dim);
+        }
+
+        .canvas-coords .val {
+            color: var(--fg-2);
+        }
+
+        .canvas-controls {
+            position: absolute;
+            bottom: 22px;
+            left: 24px;
+            display: flex;
+            gap: 6px;
+            pointer-events: auto;
+            z-index: 30;
+        }
+
+        .ctrl-btn {
+            width: 32px;
+            height: 32px;
+            background: rgba(20, 20, 20, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--fg-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s;
+            backdrop-filter: blur(8px);
+        }
+
+        .ctrl-btn:hover {
+            color: var(--accent);
+            border-color: rgba(204, 255, 51, 0.3);
+            background: rgba(204, 255, 51, 0.04);
+        }
+
+        .canvas-legend {
+            position: absolute;
+            bottom: 22px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 10.5px;
+            color: var(--fg-dim);
+            font-family: 'JetBrains Mono', monospace;
+            pointer-events: auto;
+            z-index: 30;
+        }
+
+        .legend-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.center {
+            background: var(--accent);
+            box-shadow: 0 0 6px var(--accent);
+        }
+
+        .legend-dot.near {
+            background: rgba(204, 255, 51, 0.5);
+        }
+
+        .legend-dot.far {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Concentric rings */
+        .concentric-rings {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .concentric-rings circle {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.045);
+            stroke-width: 1;
+        }
+
+        .concentric-rings circle.dashed {
+            stroke: rgba(204, 255, 51, 0.08);
+            stroke-dasharray: 2 6;
+        }
+
+        .concentric-rings {
+            fill: var(--fg-dim);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.1em;
+        }
+
+        /* Central node with organic blob */
+        .central-node {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .blob-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 360px;
+            height: 360px;
+            pointer-events: none;
+        }
+
+        .blob-svg {
+            width: 100%;
+            height: 100%;
+            animation: blobMorph 12s ease-in-out infinite;
+        }
+
+        @keyframes blobMorph {
+
+            0%,
+            100% {
+                transform: scale(1) rotate(0deg);
+            }
+
+            33% {
+                transform: scale(1.04) rotate(2deg);
+            }
+
+            66% {
+                transform: scale(0.98) rotate(-2deg);
+            }
+        }
+
+        .central-word {
+            position: relative;
+            z-index: 5;
+            text-align: center;
+            transition: opacity 0.3s ease;
+        }
+
+        .central-word .word {
+            font-size: 42px;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+            color: var(--fg);
+            text-shadow: 0 0 30px rgba(204, 255, 51, 0.3), 0 2px 10px rgba(0, 0, 0, 0.9);
+        }
+
+        .central-word .pos {
+            font-family: 'Instrument Serif', serif;
+            font-style: italic;
+            font-size: 22px;
+            color: var(--accent);
+            margin-left: 8px;
+            font-weight: 400;
+            vertical-align: 2px;
+            text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+        }
+
+        .central-word .word-meta {
+            display: block;
+            margin-top: 14px;
+            font-size: 10px;
+            color: var(--fg-muted);
+            letter-spacing: 0.2em;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Cluster words */
+        .cluster-container {
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+        }
+
+        .cluster-word {
+            position: absolute;
+            color: var(--fg-2);
+            cursor: pointer;
+            white-space: nowrap;
+            transform: translate(-50%, -50%);
+            transition:
+                color 0.3s ease,
+                font-size 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+                text-shadow 0.3s ease,
+                letter-spacing 0.3s ease;
+            padding: 6px 10px;
+            user-select: none;
+            font-weight: 400;
+            animation: clusterEnter 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+            text-shadow: 0 1px 5px rgba(0, 0, 0, 0.9);
+        }
+
+        @keyframes clusterEnter {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.3);
+            }
+
+            to {
+                opacity: var(--target-opacity, 0.7);
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .cluster-word.near {
+            font-size: 16px;
+            color: rgba(244, 244, 244, 0.9);
+            font-weight: 500;
+        }
+
+        .cluster-word.medium {
+            font-size: 14px;
+            color: rgba(244, 244, 244, 0.65);
+        }
+
+        .cluster-word.far {
+            font-size: 12px;
+            color: rgba(244, 244, 244, 0.4);
+            font-style: italic;
+        }
+
+        .cluster-word.clickable {
+            border-bottom: 1px dashed transparent;
+        }
+
+        .cluster-word.clickable::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            width: 0;
+            height: 1px;
+            background: var(--accent);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .cluster-word.clickable:hover::after {
+            width: 80%;
+        }
+
+        .cluster-word:hover {
+            color: var(--accent) !important;
+            font-size: 26px !important;
+            font-style: normal !important;
+            font-weight: 600 !important;
+            text-shadow: 0 0 15px rgba(204, 255, 51, 0.5), 0 1px 5px rgba(0, 0, 0, 0.9);
+            z-index: 20;
+            letter-spacing: -0.01em;
+        }
+
+        .cluster-word.clickable:hover {
+            text-shadow: 0 0 20px rgba(204, 255, 51, 0.6), 0 1px 5px rgba(0, 0, 0, 0.9);
+        }
+
+        /* Connection lines */
+        .connection-lines {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .connection-lines line {
+            stroke: rgba(204, 255, 51, 0.08);
+            stroke-width: 1;
+            stroke-dasharray: 2 4;
+        }
+
+        /* ===== Right Detail Panel ===== */
+        .detail-panel {
+            border-left: 1px solid var(--border);
+            background: var(--bg-2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .detail-head {
+            padding: 24px 24px 0;
+        }
+
+        .detail-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10.5px;
+            color: var(--fg-dim);
+            margin-bottom: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.1em;
+        }
+
+        .detail-breadcrumb .sep {
+            opacity: 0.5;
+        }
+
+        .detail-breadcrumb .current {
+            color: var(--accent);
+        }
+
+        .detail-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .detail-title {
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+            line-height: 1;
+        }
+
+        .detail-pos {
+            font-family: 'Instrument Serif', serif;
+            font-style: italic;
+            color: var(--accent);
+            font-size: 22px;
+            margin-left: 4px;
+            font-weight: 400;
+        }
+
+        .expand-icon {
+            width: 30px;
+            height: 30px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--fg-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            background: transparent;
+        }
+
+        .expand-icon:hover {
+            color: var(--accent);
+            border-color: rgba(204, 255, 51, 0.3);
+            background: rgba(204, 255, 51, 0.04);
+        }
+
+        .detail-phonetic {
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--fg-muted);
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+        }
+
+        .detail-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 22px 24px 0;
+        }
+
+        .detail-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 22px 0;
+        }
+
+        .section-label {
+            font-size: 10px;
+            letter-spacing: 0.22em;
+            color: var(--fg-dim);
+            margin-bottom: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-label::before {
+            content: '';
+            width: 14px;
+            height: 1px;
+            background: var(--accent);
+        }
+
+        .detail-definition {
+            font-size: 14px;
+            line-height: 1.65;
+            color: var(--fg);
+            margin-bottom: 4px;
+        }
+
+        .detail-synonyms {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 16px;
+        }
+
+        .syn-chip {
+            font-size: 11px;
+            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            color: var(--fg-2);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .syn-chip.live {
+            color: var(--accent);
+            border-color: rgba(204, 255, 51, 0.2);
+            background: rgba(204, 255, 51, 0.04);
+        }
+
+        .domain-block {
+            margin-bottom: 10px;
+            padding: 14px 14px;
+            background: rgba(255, 255, 255, 0.018);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .domain-block::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--accent);
+            opacity: 0;
+            transition: opacity 0.25s;
+        }
+
+        .domain-block:hover {
+            border-color: rgba(204, 255, 51, 0.18);
+            background: rgba(204, 255, 51, 0.025);
+            transform: translateX(2px);
+        }
+
+        .domain-block:hover::before {
+            opacity: 1;
+        }
+
+        .domain-name {
+            font-size: 10.5px;
+            color: var(--accent);
+            margin-bottom: 7px;
+            letter-spacing: 0.15em;
+            font-weight: 500;
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .domain-name .domain-num {
+            color: var(--fg-dim);
+            font-weight: 400;
+        }
+
+        .domain-text {
+            font-size: 12.5px;
+            color: var(--fg-2);
+            line-height: 1.55;
+        }
+
+        .detail-foot {
+            padding: 18px 24px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ai-tag {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 10.5px;
+            color: var(--fg-dim);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .ai-tag-left {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 6px var(--accent);
+        }
+
+        .foot-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .saved-btn {
+            flex: 0 0 auto;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            color: var(--fg-2);
+            padding: 0 14px;
+            height: 44px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.2s;
+        }
+
+        .saved-btn:hover {
+            color: var(--accent);
+            border-color: rgba(204, 255, 51, 0.25);
+        }
+
+        .saved-btn.active {
+            color: var(--accent);
+            border-color: rgba(204, 255, 51, 0.3);
+            background: rgba(204, 255, 51, 0.06);
+        }
+
+        .expand-node-btn {
+            flex: 1;
+            background: var(--accent);
+            color: #0a0a0a;
+            border: none;
+            border-radius: 10px;
+            padding: 0 18px;
+            height: 44px;
+            font-weight: 600;
+            font-size: 13.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .expand-node-btn:hover {
+            box-shadow: 0 0 30px rgba(204, 255, 51, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* ===== State Transitions ===== */
+        .view-fade-out {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+        }
+
+        .view-fade-in {
+            animation: viewFadeIn 0.5s ease;
+        }
+
+        @keyframes viewFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Subtle ambient particles in canvas */
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(204, 255, 51, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            box-shadow: 0 0 4px rgba(204, 255, 51, 0.6);
+            animation: particleFloat 20s linear infinite;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translate(0, 0);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.6;
+            }
+
+            90% {
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: translate(var(--dx), var(--dy));
+                opacity: 0;
+            }
+        }
+
+        /* Responsive fallback */
+        @media (max-width: 1100px) {
+            .exploration {
+                grid-template-columns: 220px 1fr 340px;
+            }
+
+            .blob-wrapper {
+                width: 300px;
+                height: 300px;
+            }
+
+            .central-word .word {
+                font-size: 36px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .exploration {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar,
+            .detail-panel {
+                display: none;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== Navigation ===== -->
+    <nav class="nav">
+        <div class="logo" id="logoHome">
+            <div class="logo-mark"></div>
+            <span>Semantic Compass</span>
+        </div>
+        <ul class="nav-links">
+            <li class="active">Explore</li>
+            <li>My Trails</li>
+            <li>About</li>
+        </ul>
+        <div class="nav-right">
+            <button class="nav-icon-btn" aria-label="Search">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="7" />
+                    <line x1="21" y1="21" x2="16.5" y2="16.5" />
+                </svg>
+            </button>
+            <div class="profile-icon" aria-label="Profile">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 22c0-4 4-7 8-7s8 3 8 7" />
+                </svg>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== Landing Page ===== -->
+    <section class="landing" id="landing">
+        <div class="landing-bg"></div>
+
+        <!-- Floating decorative words -->
+        <div class="float-node" style="top: 18%; left: 8%; animation-delay: 0s;">meaning</div>
+        <div class="float-node" style="top: 25%; right: 10%; animation-delay: 2s;">context</div>
+        <div class="float-node" style="bottom: 30%; left: 12%; animation-delay: 4s;">relation</div>
+        <div class="float-node" style="bottom: 22%; right: 14%; animation-delay: 6s;">topology</div>
+        <div class="float-node" style="top: 45%; left: 5%; animation-delay: 3s;">vector</div>
+        <div class="float-node" style="top: 60%; right: 6%; animation-delay: 5s;">field</div>
+
+        <div class="landing-content">
+            <div class="eyebrow">
+                <span class="eyebrow-dot"></span>
+                <span>SEMANTIC CARTOGRAPHY ENGINE · v0.4</span>
+            </div>
+            <h1>Navigate the<br><span class="accent-word">Conceptual</span> Landscape</h1>
+            <p class="subhead">A spatial interface for exploring the relationships between words, meanings, and the
+                territories they define. Type any concept to map its semantic neighborhood.</p>
+
+            <div class="search-box">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="7" />
+                    <line x1="21" y1="21" x2="16.5" y2="16.5" />
+                </svg>
+                <input class="search-input" id="searchInput" placeholder="Enter a node to explore..."
+                    autocomplete="off" />
+                <button class="map-btn" id="mapBtn">Map it →</button>
+            </div>
+
+            <div class="sample-row">
+                <span class="prototype-tag">PROTOTYPE</span>
+                <div class="sample-pills">
+                    <button class="sample-pill" data-word="ephemeral">ephemeral</button>
+                    <button class="sample-pill" data-word="serendipity">serendipity</button>
+                    <button class="sample-pill" data-word="ubiquitous">ubiquitous</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="landing-footer">
+            <div class="footer-meta">
+                <span>© 2026 SEMANTIC COMPASS</span>
+                <span style="opacity:0.5">/</span>
+                <span>CONCEPT LAB</span>
+            </div>
+            <div class="footer-links">
+                <span>Privacy</span>
+                <span>Terms</span>
+                <span>API</span>
+                <span>Docs</span>
+                <span>Contact</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== Exploration View ===== -->
+    <section class="exploration" id="exploration">
+
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-head">
+                <div class="sidebar-label">
+                    <span>TRAIL LOG</span>
+                    <span class="live-pip"></span>
+                </div>
+                <div class="session-tree">
+                    <svg class="tree-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <circle cx="6" cy="6" r="2" />
+                        <circle cx="18" cy="6" r="2" />
+                        <circle cx="12" cy="18" r="2" />
+                        <line x1="7.5" y1="7.5" x2="10.5" y2="16.5" />
+                        <line x1="16.5" y1="7.5" x2="13.5" y2="16.5" />
+                    </svg>
+                    Active Session Tree
+                </div>
+            </div>
+            <div class="sidebar-body">
+                <div class="trail-list" id="trailList"></div>
+            </div>
+            <div class="sidebar-foot">
+                <div class="stat-row"><span>Nodes visited</span><span class="value accent" id="nodeCount">1</span></div>
+                <div class="stat-row"><span>Edges mapped</span><span class="value" id="edgeCount">17</span></div>
+                <div class="stat-row"><span>Depth</span><span class="value" id="depthCount">1</span></div>
+                <div class="stat-row"><span>Session</span><span class="value" id="sessionTime">00:00</span></div>
+            </div>
+        </aside>
+
+        <!-- Center Canvas -->
+        <div class="canvas" id="canvas">
+            <div class="canvas-overlay">
+                <div class="canvas-label">
+                    <span class="live-dot"></span>
+                    <span>LIVE SEMANTIC FIELD</span>
+                </div>
+                <div class="canvas-coords">
+                    <span><span class="label">LAT</span><span class="val" id="latVal">0.000</span></span>
+                    <span><span class="label">LON</span><span class="val" id="lonVal">0.000</span></span>
+                    <span><span class="label">ZOOM</span><span class="val">1.00×</span></span>
+                </div>
+                <div class="canvas-controls">
+                    <button class="ctrl-btn" aria-label="Zoom out">−</button>
+                    <button class="ctrl-btn" aria-label="Zoom in">+</button>
+                    <button class="ctrl-btn" aria-label="Recenter">⊙</button>
+                    <button class="ctrl-btn" aria-label="Layers">⊞</button>
+                </div>
+                <div class="canvas-legend">
+                    <div class="legend-row"><span class="legend-dot center"></span><span>Central node</span></div>
+                    <div class="legend-row"><span class="legend-dot near"></span><span>Adjacent concept</span></div>
+                    <div class="legend-row"><span class="legend-dot far"></span><span>Peripheral</span></div>
+                </div>
+            </div>
+
+            <!-- Concentric guide rings -->
+            <svg class="concentric-rings" width="780" height="780" viewBox="0 0 780 780">
+                <circle cx="390" cy="390" r="140" />
+                <circle cx="390" cy="390" r="210" class="dashed" />
+                <circle cx="390" cy="390" r="290" />
+                <circle cx="390" cy="390" r="370" class="dashed" />
+            </svg>
+
+            <!-- Connection lines SVG -->
+            <svg class="connection-lines" id="connectionLines"></svg>
+
+            <!-- Central node with organic blob -->
+            <div class="central-node">
+                <div class="blob-wrapper">
+                    <svg class="blob-svg" viewBox="0 0 400 400">
+                        <defs>
+                            <radialGradient id="blobCore" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" stop-color="#ccff33" stop-opacity="0.25" />
+                                <stop offset="30%" stop-color="#ccff33" stop-opacity="0.15" />
+                                <stop offset="65%" stop-color="#ccff33" stop-opacity="0.05" />
+                                <stop offset="100%" stop-color="#ccff33" stop-opacity="0" />
+                            </radialGradient>
+                            <radialGradient id="blobInner" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" stop-color="#ccff33" stop-opacity="0.1" />
+                                <stop offset="100%" stop-color="#ccff33" stop-opacity="0" />
+                            </radialGradient>
+                            <filter id="goo">
+                                <feGaussianBlur in="SourceGraphic" stdDeviation="14" />
+                                <feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -10" />
+                            </filter>
+                        </defs>
+
+                        <!-- Outer soft halo -->
+                        <circle cx="200" cy="200" r="180" fill="url(#blobCore)" />
+
+                        <!-- Organic blob body (gooey merged circles) -->
+                        <g filter="url(#goo)">
+                            <circle cx="200" cy="200" r="95" fill="#ccff33" fill-opacity="0.15" />
+                            <circle cx="155" cy="175" r="50" fill="#ccff33" fill-opacity="0.12" />
+                            <circle cx="245" cy="180" r="55" fill="#ccff33" fill-opacity="0.12" />
+                            <circle cx="220" cy="240" r="48" fill="#ccff33" fill-opacity="0.10" />
+                            <circle cx="170" cy="230" r="42" fill="#ccff33" fill-opacity="0.10" />
+                            <circle cx="195" cy="150" r="38" fill="#ccff33" fill-opacity="0.08" />
+                            <circle cx="240" cy="220" r="32" fill="#ccff33" fill-opacity="0.08" />
+                        </g>
+
+                        <!-- Inner crisp organic outline -->
+                        <path d="M 200,90 
+                   C 260,82 310,120 325,170
+                   C 340,220 318,275 270,300
+                   C 220,325 155,315 115,280
+                   C 75,245 70,185 95,140
+                   C 120,95 165,88 200,90 Z" fill="url(#blobInner)" stroke="rgba(204,255,51,0.45)"
+                            stroke-width="1.2" />
+
+                        <!-- Inner highlight ring -->
+                        <path d="M 200,110 
+                   C 250,103 290,135 305,175
+                   C 320,215 305,260 265,285
+                   C 220,310 165,300 130,270
+                   C 95,240 90,190 110,155
+                   C 130,120 170,108 200,110 Z" fill="none" stroke="rgba(204,255,51,0.18)" stroke-width="0.8"
+                            stroke-dasharray="1 3" />
+                    </svg>
+                </div>
+                <div class="central-word" id="centralWord">
+                    <span class="word">ephemeral</span><span class="pos">[adj.]</span>
+                    <span class="word-meta">NODE · 0x4F2A · 17 EDGES</span>
+                </div>
+            </div>
+
+            <!-- Cluster words container -->
+            <div class="cluster-container" id="clusterContainer"></div>
+
+        </div>
+
+        <!-- Right Detail Panel -->
+        <aside class="detail-panel">
+            <div class="detail-head">
+                <div class="detail-breadcrumb">
+                    <span>ROOT</span>
+                    <span class="sep">/</span>
+                    <span>CONCEPT</span>
+                    <span class="sep">/</span>
+                    <span class="current" id="breadcrumbCurrent">EPHEMERAL</span>
+                </div>
+                <div class="detail-title-row">
+                    <div>
+                        <span class="detail-title" id="detailTitle">ephemeral</span><span class="detail-pos"
+                            id="detailPos">[adj.]</span>
+                    </div>
+                    <button class="expand-icon" aria-label="Expand">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="15 3 21 3 21 9" />
+                            <polyline points="9 21 3 21 3 15" />
+                            <line x1="21" y1="3" x2="14" y2="10" />
+                            <line x1="3" y1="21" x2="10" y2="14" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="detail-phonetic" id="detailPhonetic">/ɪˈfɛm.ər.əl/ · from Greek ephēmeros</div>
+            </div>
+
+            <div class="detail-body">
+                <div class="detail-divider"></div>
+
+                <div class="section-label">CORE DEFINITION</div>
+                <div class="detail-definition" id="detailDefinition"></div>
+
+                <div class="detail-synonyms" id="detailSynonyms"></div>
+
+                <div class="detail-divider"></div>
+
+                <div class="section-label">DOMAIN EXAMPLES</div>
+                <div id="domainExamples"></div>
+            </div>
+
+            <div class="detail-foot">
+                <div class="ai-tag">
+                    <div class="ai-tag-left">
+                        <span class="ai-dot"></span>
+                        <span>AI-GENERATED CONTENT · GPT-4 SEMANTIC ENGINE</span>
+                    </div>
+                    <span>v0.4.2</span>
+                </div>
+                <div class="foot-actions">
+                    <button class="saved-btn" id="savedBtn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                        </svg>
+                        Save
+                    </button>
+                    <button class="expand-node-btn">
+                        Expand Node
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                            <polyline points="12 5 19 12 12 19" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+    </section>
+
+    <script>
+        // ============================
+        // MOCK DATA — Interconnected Semantic Network
+        // ============================
+        const mockData = {
+            "ephemeral": {
+                pos: "[adj.]",
+                phonetic: "/ɪˈfɛm.ər.əl/ · from Greek ephēmeros",
+                definition: "Lasting for a very short time; transient, fleeting, and quickly fading from existence or memory. Often carrying a poetic weight that suggests fragility, poignancy, or the bitter-sweet beauty of impermanence.",
+                synonyms: ["fleeting", "transient", "impermanent", "momentary"],
+                domains: [
+                    { name: "BIOLOGY", text: "The adult mayfly (Ephemeroptera) lives for merely hours—mating, laying eggs, and dying before dusk falls on its single day of flight. An entire lifecycle compressed into one evening." },
+                    { name: "DIGITAL ARTS", text: "Snapchat stories and Instagram posts that vanish after 24 hours—content designed to be experienced in the moment, then forgotten by design, mimicking the rhythm of memory itself." },
+                    { name: "BOTANY", text: "Desert blooms that erupt after rare rain, painting the sand for a single week before dormancy returns for years on end. Seeds wait decades for the right storm." }
+                ],
+                cluster: ["fleeting", "transient", "impermanent", "momentary", "brief", "passing", "short-lived", "evanescent", "fugitive", "volatile", "temporary", "fading", "vanishing", "fragile", "delicate", "perishable", "mortal"]
+            },
+            "fleeting": {
+                pos: "[adj.]",
+                phonetic: "/ˈfliː.tɪŋ/ · from Old English flēotan",
+                definition: "Passing swiftly; lasting for only a brief moment before disappearing from perception. Implies movement and elusiveness — something felt but barely grasped.",
+                synonyms: ["ephemeral", "transient", "momentary", "passing"],
+                domains: [
+                    { name: "PSYCHOLOGY", text: "Micro-expressions—fleeting emotions crossing a face in under a third of a second, often betraying inner state before conscious control can intervene." },
+                    { name: "ASTRONOMY", text: "A meteor's fleeting flash, burning through atmosphere in less time than a heartbeat, leaving only a memory of light against the fixed stars." },
+                    { name: "PHOTOGRAPHY", text: "Cartier-Bresson's 'decisive moment'—a fleeting composition captured in 1/500th of a second, never to repeat in the same configuration of light and gesture." }
+                ],
+                cluster: ["ephemeral", "transient", "impermanent", "momentary", "brief", "passing", "short-lived", "swift", "rapid", "quick", "evanescent", "fugitive", "fast", "speedy", "hasty", "sudden", "instant", "split-second"]
+            },
+            "transient": {
+                pos: "[adj.]",
+                phonetic: "/ˈtræn.zi.ənt/ · from Latin transire",
+                definition: "Existing or occurring for a short duration; not remaining long in one place or state. Often used of people, conditions, or phenomena in continuous flux.",
+                synonyms: ["ephemeral", "fleeting", "impermanent", "passing"],
+                domains: [
+                    { name: "PHYSICS", text: "Transient voltage spikes—microsecond electrical surges that can damage semiconductors before protection circuits engage. Measured in nanoseconds, costing millions." },
+                    { name: "MEDICINE", text: "Transient ischemic attacks: brief stroke-like episodes resolving within 24 hours, often warning signs of larger events to come. The body's quiet alarm bell." },
+                    { name: "SOCIOLOGY", text: "Transient populations in cities—travelers, migrant workers, those passing through without putting down roots. The infrastructure that serves them tells a city's character." }
+                ],
+                cluster: ["ephemeral", "fleeting", "impermanent", "passing", "momentary", "brief", "temporary", "migratory", "nomadic", "wandering", "roving", "shifting", "unstable", "variable", "inconstant", "fluid", "mobile"]
+            },
+            "impermanent": {
+                pos: "[adj.]",
+                phonetic: "/ɪmˈpɜː.mə.nənt/ · from Latin im- + permanere",
+                definition: "Not lasting forever; subject to change, decay, or cessation. A central concept in Buddhist philosophy and a fundamental property of all conditioned things.",
+                synonyms: ["ephemeral", "transient", "fleeting", "temporary"],
+                domains: [
+                    { name: "PHILOSOPHY", text: "Anicca—the Buddhist doctrine of impermanence asserting all conditioned things are in continuous flux, never the same from one moment to the next. Liberation comes from acceptance." },
+                    { name: "ARCHITECTURE", text: "Paper temples in Japan and ice hotels in Scandinavia, designed to embrace decay and rebuilding as part of their form. The structure is the ritual." },
+                    { name: "GEOLOGY", text: "Impermanent coastlines reshaped by each tide—no two days identical on a beach, cliffs retreating centimeters annually, continents drifting at the speed of growing fingernails." }
+                ],
+                cluster: ["ephemeral", "transient", "fleeting", "temporary", "mortal", "perishable", "decaying", "mutable", "changing", "unstable", "finite", "fragile", "vulnerable", "passing", "fading", "transitory"]
+            },
+            "serendipity": {
+                pos: "[n.]",
+                phonetic: "/ˌser.ənˈdɪp.ə.ti/ · coined 1754 by Horace Walpole",
+                definition: "The occurrence of finding valuable or pleasant things by chance, without seeking them. A particular kind of fortunate accident shaped by a prepared mind.",
+                synonyms: ["chance", "fortune", "luck", "providence"],
+                domains: [
+                    { name: "CHEMISTRY", text: "Fleming's contaminated Petri dish—penicillin discovered because mold spores drifted through an open laboratory window in 1928. The accident required his eye to recognize it." },
+                    { name: "LITERATURE", text: "Horace Walpole coined the term in 1754, after a Persian fairy tale 'The Three Princes of Serendip' whose heroes made accidental discoveries by sagacity." },
+                    { name: "TECHNOLOGY", text: "Post-it notes: Spencer Silver failed to make a strong adhesive in 1968; years later 3M's 'failed' glue became a global office icon. Failure reframed as feature." }
+                ],
+                cluster: ["chance", "fortune", "luck", "providence", "kismet", "fate", "destiny", "coincidence", "happenstance", "fluke", "windfall", "blessing", "discovery", "accident", "hap", "serendipitous", "fortunate"]
+            },
+            "ubiquitous": {
+                pos: "[adj.]",
+                phonetic: "/juːˈbɪk.wɪ.təs/ · from Latin ubique 'everywhere'",
+                definition: "Present, appearing, or found everywhere at the same time; constantly encountered. Implies a quality of pervasiveness that borders on the inescapable.",
+                synonyms: ["omnipresent", "universal", "pervasive", "widespread"],
+                domains: [
+                    { name: "TECHNOLOGY", text: "Ubiquitous computing—sensors embedded in walls, clothing, coffee cups. Mark Weiser's 1991 vision: the world itself becomes the interface, technology receding into ambient intelligence." },
+                    { name: "ECOLOGY", text: "Ubiquitous species like rats, dandelions, and cockroaches thrive on every continent except Antarctica, masters of human-disturbed landscapes. Travelers by our side." },
+                    { name: "LINGUISTICS", text: "The word 'okay' is arguably the most universally recognized expression across all human languages today—a 19th century American political joke that went globally viral." }
+                ],
+                cluster: ["omnipresent", "universal", "pervasive", "everywhere", "widespread", "common", "global", "prevalent", "everyday", "familiar", "routine", "constant", "perpetual", "endless", "surrounding", "permeating", "diffuse"]
+            }
+        };
+
+        // Fallback generator for words not in mockData
+        function generateFallback(word) {
+            const knownWords = Object.keys(mockData);
+            const sample = ["context", "meaning", "sense", "relation", "field", "domain", "structure", "network", "node", "edge", "path", "direction", "vector", "flow", "pattern", "form", "essence", "quality", "attribute", "texture"];
+            const cluster = [...knownWords, ...sample]
+                .filter(w => w !== word)
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 17);
+            return {
+                pos: "[concept]",
+                phonetic: `/auto-generated · semantic vector`,
+                definition: `"${word}" occupies a position in the latent semantic space connected to adjacent concepts below. This entry is procedurally generated by the compass engine for prototyping purposes; richer definitions are available for indexed nodes (ephemeral, fleeting, transient, impermanent, serendipity, ubiquitous).`,
+                synonyms: cluster.slice(0, 4),
+                domains: [
+                    { name: "GENERAL USAGE", text: `"${word}" appears across multiple domains with shifting nuance — each discipline shapes the term through its own tradition of practice and inquiry.` },
+                    { name: "RELATED FIELDS", text: `The concept resonates through fields adjacent to its primary usage, picking up contextual coloration that complicates any single definition.` },
+                    { name: "PROTOTYPE NOTE", text: `Full domain examples for "${word}" are not yet indexed in this prototype. Try navigating to one of the highlighted interconnected nodes for a complete entry.` }
+                ],
+                cluster
+            };
+        }
+
+        function getData(word) {
+            return mockData[word] || generateFallback(word);
+        }
+
+        // ============================
+        // STATE
+        // ============================
+        let currentWord = "ephemeral";
+        let trailHistory = [];
+        let savedNodes = new Set();
+        let sessionStart = Date.now();
+        let isAnimating = false;
+
+        // ============================
+        // DOM REFERENCES
+        // ============================
+        const landing = document.getElementById('landing');
+        const exploration = document.getElementById('exploration');
+        const searchInput = document.getElementById('searchInput');
+        const mapBtn = document.getElementById('mapBtn');
+        const clusterContainer = document.getElementById('clusterContainer');
+        const connectionLines = document.getElementById('connectionLines');
+        const trailList = document.getElementById('trailList');
+        const savedBtn = document.getElementById('savedBtn');
+        const logoHome = document.getElementById('logoHome');
+
+        // ============================
+        // HELPERS
+        // ============================
+        function rand(min, max) { return Math.random() * (max - min) + min; }
+        function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+        function formatTime() {
+            const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+            const m = Math.floor(elapsed / 60);
+            const s = elapsed % 60;
+            return `${pad(m)}:${pad(s)}`;
+        }
+
+        // ============================
+        // RENDER: CLUSTER
+        // ============================
+        function renderCluster(word) {
+            const data = getData(word);
+            clusterContainer.innerHTML = '';
+            connectionLines.innerHTML = '';
+            // Restore pointer events if they were disabled
+            clusterContainer.style.pointerEvents = 'auto';
+
+            const cluster = data.cluster;
+            const numWords = cluster.length;
+            const canvasRect = document.getElementById('canvas').getBoundingClientRect();
+            const cx = canvasRect.width / 2;
+            const cy = canvasRect.height / 2;
+
+            // Position words in polar coordinates with jitter
+            const positions = [];
+            cluster.forEach((w, i) => {
+                const baseAngle = (i / numWords) * Math.PI * 2;
+                const angle = baseAngle + rand(-0.18, 0.18);
+                // Vary radius between 3 rings
+                const ring = i % 3; // 0, 1, 2
+                let radius;
+                if (ring === 0) radius = rand(20, 24); // near
+                else if (ring === 1) radius = rand(28, 34); // medium
+                else radius = rand(36, 44); // far
+
+                const x = 50 + Math.cos(angle) * radius;
+                const y = 50 + Math.sin(angle) * radius;
+                positions.push({ x, y, word: w, ring });
+            });
+
+            // Render connection lines (subtle) from center to each
+            positions.forEach((p, i) => {
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                const x1 = cx;
+                const y1 = cy;
+                const x2 = (p.x / 100) * canvasRect.width;
+                const y2 = (p.y / 100) * canvasRect.height;
+                line.setAttribute('x1', x1);
+                line.setAttribute('y1', y1);
+                line.setAttribute('x2', x2);
+                line.setAttribute('y2', y2);
+                line.setAttribute('stroke', 'rgba(204,255,51,0.06)');
+                line.setAttribute('stroke-width', '1');
+                line.setAttribute('stroke-dasharray', '2 5');
+                connectionLines.appendChild(line);
+            });
+
+            // Render words
+            positions.forEach((p, i) => {
+                const el = document.createElement('div');
+                el.className = 'cluster-word';
+                el.textContent = p.word;
+                el.style.left = `${p.x}%`;
+                el.style.top = `${p.y}%`;
+                el.style.animationDelay = `${i * 30}ms`;
+
+                if (p.ring === 0) {
+                    el.classList.add('near');
+                    el.style.setProperty('--target-opacity', '0.95');
+                } else if (p.ring === 1) {
+                    el.classList.add('medium');
+                    el.style.setProperty('--target-opacity', '0.7');
+                } else {
+                    el.classList.add('far');
+                    el.style.setProperty('--target-opacity', '0.45');
+                }
+
+                // Mark clickable (in mockData)
+                if (mockData[p.word]) {
+                    el.classList.add('clickable');
+                }
+
+                el.addEventListener('click', () => {
+                    // Trigger smooth animation instead of instant swap
+                    animateToCenter(p.word);
+                });
+
+                clusterContainer.appendChild(el);
+            });
+        }
+
+        // ============================
+        // RENDER: CENTRAL NODE
+        // ============================
+        function renderCentral(word) {
+            const data = getData(word);
+            const centralWordEl = document.getElementById('centralWord');
+            centralWordEl.style.opacity = '0';
+            setTimeout(() => {
+                centralWordEl.innerHTML = `
+      <span class="word">${word}</span><span class="pos">${data.pos}</span>
+      <span class="word-meta">NODE · 0x${(Math.random() * 65536 | 0).toString(16).toUpperCase().padStart(4, '0')} · ${data.cluster.length} EDGES</span>
+    `;
+                centralWordEl.style.opacity = '1';
+            }, 150);
+        }
+
+        // ============================
+        // RENDER: RIGHT PANEL
+        // ============================
+        function renderDetailPanel(word) {
+            const data = getData(word);
+            document.getElementById('detailTitle').textContent = word;
+            document.getElementById('detailPos').textContent = data.pos;
+            document.getElementById('detailPhonetic').textContent = data.phonetic;
+            document.getElementById('detailDefinition').textContent = data.definition;
+            document.getElementById('breadcrumbCurrent').textContent = word.toUpperCase();
+
+            // Synonyms
+            const synEl = document.getElementById('detailSynonyms');
+            synEl.innerHTML = data.synonyms.map((s, i) =>
+                `<span class="syn-chip ${i === 0 ? 'live' : ''}">${s}</span>`
+            ).join('');
+
+            // Domains
+            const domainsEl = document.getElementById('domainExamples');
+            domainsEl.innerHTML = data.domains.map((d, i) => `
+    <div class="domain-block">
+      <div class="domain-name">
+        <span class="domain-num">0${i + 1}</span>
+        ${d.name}
+      </div>
+      <div class="domain-text">${d.text}</div>
+    </div>
+  `).join('');
+
+            // Saved state
+            if (savedNodes.has(word)) {
+                savedBtn.classList.add('active');
+            } else {
+                savedBtn.classList.remove('active');
+            }
+        }
+
+        // ============================
+        // RENDER: TRAIL LOG
+        // ============================
+        function addToTrail(word) {
+            const time = formatTime();
+            // Avoid duplicate consecutive entries
+            if (trailHistory.length > 0 && trailHistory[trailHistory.length - 1].word === word) return;
+            trailHistory.push({ word, time });
+            if (trailHistory.length > 8) trailHistory.shift();
+        }
+
+        function renderTrail() {
+            trailList.innerHTML = trailHistory.map((item, i) => {
+                const isActive = i === trailHistory.length - 1;
+                return `
+      <div class="trail-item ${isActive ? 'active' : ''}" data-word="${item.word}" data-index="${i}">
+        <div class="trail-word">${item.word}</div>
+        <div class="trail-meta">
+          <span>${item.time}</span>
+          <span>·</span>
+          <span>${isActive ? 'CURRENT' : 'VISITED'}</span>
+        </div>
+      </div>
+    `;
+            }).join('');
+
+            trailList.querySelectorAll('.trail-item').forEach(el => {
+                el.addEventListener('click', () => {
+                    const w = el.getAttribute('data-word');
+                    const idx = parseInt(el.getAttribute('data-index'));
+                    if (w !== currentWord && !isAnimating) {
+                        // Trim trail to this point
+                        trailHistory = trailHistory.slice(0, idx + 1);
+                        renderExploration(w, false);
+                    }
+                });
+            });
+
+            // Update stats
+            document.getElementById('nodeCount').textContent = trailHistory.length;
+            document.getElementById('edgeCount').textContent = getData(currentWord).cluster.length;
+            document.getElementById('depthCount').textContent = trailHistory.length;
+        }
+
+        // ============================
+        // ANIMATION: SWAP TO CENTER
+        // ============================
+        function animateToCenter(word) {
+            if (word === currentWord || isAnimating) return;
+
+            const allWords = clusterContainer.querySelectorAll('.cluster-word');
+            const clickedEl = Array.from(allWords).find(w => w.textContent === word);
+
+            if (!clickedEl) return;
+
+            isAnimating = true;
+
+            // Disable pointer events during animation
+            clusterContainer.style.pointerEvents = 'none';
+
+            // Add to trail immediately (logical update)
+            addToTrail(word);
+
+            // 1. Fade out current central word
+            const centralWordEl = document.getElementById('centralWord');
+            centralWordEl.style.transition = 'opacity 0.4s ease';
+            centralWordEl.style.opacity = '0';
+
+            // 2. Fade out connection lines
+            const lines = connectionLines.querySelectorAll('line');
+            lines.forEach(line => {
+                line.style.transition = 'opacity 0.4s ease';
+                line.style.opacity = '0';
+            });
+
+            // 3. Animate cluster words
+            allWords.forEach(w => {
+                // Stop entry animation and apply transition for smooth movement
+                w.style.animation = 'none';
+                w.style.transition = 'left 0.6s cubic-bezier(0.4, 0, 0.2, 1), top 0.6s cubic-bezier(0.4, 0, 0.2, 1), font-size 0.6s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s ease, opacity 0.4s ease, font-weight 0.4s ease, font-style 0.4s ease, text-shadow 0.4s ease';
+
+                if (w === clickedEl) {
+                    // Move to center and scale up to match central node
+                    w.style.left = '50%';
+                    w.style.top = '50%';
+                    w.style.fontSize = '42px';
+                    w.style.color = 'var(--fg)';
+                    w.style.fontWeight = '600';
+                    w.style.fontStyle = 'normal';
+                    w.style.textShadow = '0 0 30px rgba(204,255,51,0.3), 0 2px 10px rgba(0,0,0,0.9)';
+                    w.style.zIndex = '15';
+                    w.style.opacity = '1';
+                } else {
+                    // Fade out other words
+                    w.style.opacity = '0';
+                }
+            });
+
+            // 4. Finalize after animation completes (600ms)
+            setTimeout(() => {
+                currentWord = word;
+
+                // Update central word HTML and fade it in
+                const data = getData(word);
+                centralWordEl.innerHTML = `
+      <span class="word">${word}</span><span class="pos">${data.pos}</span>
+      <span class="word-meta">NODE · 0x${(Math.random() * 65536 | 0).toString(16).toUpperCase().padStart(4, '0')} · ${data.cluster.length} EDGES</span>
+    `;
+                centralWordEl.style.transition = 'opacity 0.3s ease';
+                centralWordEl.style.opacity = '1';
+
+                // Update Side Panels
+                renderDetailPanel(word);
+                renderTrail();
+
+                // Re-render cluster (clears old elements, draws new lines and words with entry animation)
+                requestAnimationFrame(() => {
+                    renderCluster(word);
+                    isAnimating = false;
+                });
+            }, 600);
+        }
+
+        // ============================
+        // MAIN RENDER EXPLORATION
+        // ============================
+        function renderExploration(word, addToTrailFlag = true) {
+            currentWord = word;
+            if (addToTrailFlag) addToTrail(word);
+
+            renderCentral(word);
+            renderDetailPanel(word);
+            renderTrail();
+
+            // Slight delay so canvas dimensions are correct
+            requestAnimationFrame(() => {
+                renderCluster(word);
+            });
+        }
+
+        // ============================
+        // STATE TRANSITION
+        // ============================
+        function startExploration(word) {
+            if (!word) return;
+
+            // Reset session
+            trailHistory = [];
+            sessionStart = Date.now();
+
+            landing.classList.add('view-fade-out');
+
+            setTimeout(() => {
+                landing.style.display = 'none';
+                landing.classList.remove('view-fade-out');
+                exploration.classList.add('active', 'view-fade-in');
+                renderExploration(word);
+                setTimeout(() => exploration.classList.remove('view-fade-in'), 500);
+            }, 350);
+        }
+
+        function returnToLanding() {
+            exploration.classList.add('view-fade-out');
+            setTimeout(() => {
+                exploration.classList.remove('active', 'view-fade-out');
+                landing.style.display = 'flex';
+                landing.classList.add('view-fade-in');
+                searchInput.value = '';
+                setTimeout(() => landing.classList.remove('view-fade-in'), 500);
+            }, 350);
+        }
+
+        // ============================
+        // EVENT HANDLERS
+        // ============================
+        mapBtn.addEventListener('click', () => {
+            const w = searchInput.value.trim().toLowerCase();
+            if (w) startExploration(w);
+        });
+
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const w = searchInput.value.trim().toLowerCase();
+                if (w) startExploration(w);
+            }
+        });
+
+        document.querySelectorAll('.sample-pill').forEach(pill => {
+            pill.addEventListener('click', () => {
+                const w = pill.getAttribute('data-word');
+                startExploration(w);
+            });
+        });
+
+        logoHome.addEventListener('click', returnToLanding);
+
+        savedBtn.addEventListener('click', () => {
+            if (savedNodes.has(currentWord)) {
+                savedNodes.delete(currentWord);
+                savedBtn.classList.remove('active');
+            } else {
+                savedNodes.add(currentWord);
+                savedBtn.classList.add('active');
+            }
+        });
+
+        // Update session time
+        setInterval(() => {
+            const el = document.getElementById('sessionTime');
+            if (el && exploration.classList.contains('active')) {
+                el.textContent = formatTime();
+            }
+        }, 1000);
+
+        // Random coordinates for atmosphere
+        setInterval(() => {
+            if (exploration.classList.contains('active')) {
+                const lat = (Math.random() * 0.5).toFixed(3);
+                const lon = (Math.random() * 0.5).toFixed(3);
+                const latEl = document.getElementById('latVal');
+                const lonEl = document.getElementById('lonVal');
+                if (latEl) latEl.textContent = lat;
+                if (lonEl) lonEl.textContent = lon;
+            }
+        }, 3000);
+
+        // Re-render cluster on window resize (so connection lines stay accurate)
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (exploration.classList.contains('active') && !isAnimating) {
+                    renderCluster(currentWord);
+                }
+            }, 200);
+        });
+
+        // Keyboard shortcut: ESC to return home
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && exploration.classList.contains('active')) {
+                returnToLanding();
+            }
+        });
+    </script>
+</body>
+
+</html>
