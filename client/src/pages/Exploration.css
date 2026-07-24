@@ -1,0 +1,18 @@
+.exploration {
+  display: grid;
+  height: calc(100vh - 64px);
+  grid-template-columns: 256px 1fr 380px;
+  overflow: hidden;
+}
+
+@media (max-width: 1100px) {
+  .exploration {
+    grid-template-columns: 220px 1fr 340px;
+  }
+}
+
+@media (max-width: 900px) {
+  .exploration {
+    grid-template-columns: 1fr;
+  }
+}
