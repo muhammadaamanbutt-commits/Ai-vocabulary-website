@@ -57,7 +57,7 @@ function Exploration() {
   const fetchWordData = async (word) => {
     setLoading(true)
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/words/${word}`)
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/words?term=${encodeURIComponent(word)}`)
       const data = await response.json()
       setWordData(data)
       // Cache the fetched data
