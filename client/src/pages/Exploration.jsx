@@ -60,7 +60,7 @@ function Exploration() {
     setLoading(true)
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001'
-      const response = await fetch(`${apiUrl}/api/words/${encodeURIComponent(word)}`)
+      const response = await fetch(`${apiUrl}/api/words?term=${encodeURIComponent(word)}`)
       const data = await response.json()
       setWordData(data)
       // Cache the fetched data
