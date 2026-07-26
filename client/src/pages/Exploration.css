@@ -10,7 +10,7 @@
 .drawer-trigger {
   display: none;
   position: fixed;
-  top: 80px;
+  top: 150px;
   left: 16px;
   z-index: 100;
   width: 44px;
@@ -88,6 +88,13 @@
   .exploration {
     grid-template-columns: 256px 1fr 380px;
   }
+
+  .canvas-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+  }
 }
 
 /* Tablet: 768px to 1023px - Drawer + Two columns side by side */
@@ -159,7 +166,13 @@
     grid-template-columns: 1fr 1fr;
   }
 
-  .canvas-container,
+  .canvas-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+  }
+
   .detail-container {
     display: block;
     overflow: auto;
@@ -287,7 +300,6 @@
 
   .canvas-container,
   .detail-container {
-    display: block;
     position: absolute;
     top: 0;
     left: 0;
@@ -297,6 +309,16 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease-out;
+  }
+
+  .canvas-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .detail-container {
+    display: block;
   }
 
   .content-wrapper.show-map .canvas-container {

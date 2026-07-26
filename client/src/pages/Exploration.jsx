@@ -86,6 +86,13 @@ function Exploration() {
     setIsDrawerOpen(false)
   }
 
+  // Close drawer when switching to Definition tab
+  useEffect(() => {
+    if (activeTab === 'definition') {
+      setIsDrawerOpen(false)
+    }
+  }, [activeTab])
+
   // Lock body scroll when drawer is open
   useEffect(() => {
     if (isDrawerOpen) {
@@ -102,21 +109,23 @@ function Exploration() {
     <>
       <Navigation />
       <div className="exploration">
-        {/* Drawer Trigger Button */}
-        <button 
-          className="drawer-trigger" 
-          onClick={toggleDrawer}
-          aria-label="Toggle Trail Log"
-          aria-expanded={isDrawerOpen}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="6" cy="6" r="2" />
-            <circle cx="18" cy="6" r="2" />
-            <circle cx="12" cy="18" r="2" />
-            <line x1="7.5" y1="7.5" x2="10.5" y2="16.5" />
-            <line x1="16.5" y1="7.5" x2="13.5" y2="16.5" />
-          </svg>
-        </button>
+        {/* Drawer Trigger Button - Only show when Map tab is active */}
+        {activeTab === 'map' && (
+          <button 
+            className="drawer-trigger" 
+            onClick={toggleDrawer}
+            aria-label="Toggle Trail Log"
+            aria-expanded={isDrawerOpen}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="6" cy="6" r="2" />
+              <circle cx="18" cy="6" r="2" />
+              <circle cx="12" cy="18" r="2" />
+              <line x1="7.5" y1="7.5" x2="10.5" y2="16.5" />
+              <line x1="16.5" y1="7.5" x2="13.5" y2="16.5" />
+            </svg>
+          </button>
+        )}
 
         {/* Drawer Overlay */}
         {isDrawerOpen && (

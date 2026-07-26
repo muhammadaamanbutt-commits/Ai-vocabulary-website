@@ -8,11 +8,31 @@ function Canvas({ wordData, currentWord, isFading }) {
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [hoveredWord, setHoveredWord] = useState(null)
   const [dimensions, setDimensions] = useState({ width: 800, height: 800 })
+  const [isTouchDevice, setIsTouchDevice] = useState(false)
   const containerRef = useRef(null)
+  
+  // Detect touch device on mount
+  useEffect(() => {
+    const checkTouchDevice = () => {
+      // Check if device has coarse pointer (touch) as primary input
+      const hasCoarsePointer = window.matchMedia('(pointer: coarse)').matches
+      // Check if device doesn't support hover
+      const noHover = window.matchMedia('(hover: none)').matches
+      setIsTouchDevice(hasCoarsePointer || noHover)
+    }
+    
+    checkTouchDevice()
+  }, [])
   
   // ResizeObserver to track container dimensions dynamically
   useEffect(() => {
     if (!containerRef.current) return
+    
+    // Set initial dimensions immediately
+    const rect = containerRef.current.getBoundingClientRect()
+    if (rect.width > 0 && rect.height > 0) {
+      setDimensions({ width: rect.width, height: rect.height })
+    }
     
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
@@ -394,8 +414,8 @@ function Canvas({ wordData, currentWord, isFading }) {
                 justifyContent: 'center'
               }}
               onClick={(e) => handleWordClick(word, e)}
-              onMouseEnter={() => setHoveredWord(word)}
-              onMouseLeave={() => setHoveredWord(null)}
+              onMouseEnter={() => !isTouchDevice && setHoveredWord(word)}
+              onMouseLeave={() => !isTouchDevice && setHoveredWord(null)}
             >
               {word}
             </div>

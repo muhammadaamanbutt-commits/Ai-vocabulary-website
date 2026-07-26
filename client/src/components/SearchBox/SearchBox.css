@@ -106,38 +106,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(10px, 2.5vw, 14px);
   margin-top: clamp(28px, 5vh, 38px);
-  flex-wrap: wrap;
   padding: 0 16px;
-}
-
-@media (max-width: 640px) {
-  .sample-row {
-    flex-direction: column;
-    gap: 12px;
-  }
-}
-
-.prototype-tag {
-  font-size: clamp(9px, 1.8vw, 10px);
-  letter-spacing: 0.22em;
-  color: var(--fg-dim);
-  border: 1px solid var(--border);
-  padding: clamp(4px, 1vw, 5px) clamp(7px, 1.5vw, 9px);
-  border-radius: 4px;
-  font-family: 'JetBrains Mono', monospace;
-}
-
-@media (max-width: 480px) {
-  .prototype-tag {
-    letter-spacing: 0.16em;
-  }
 }
 
 .sample-pills {
   display: flex;
-  gap: 10px;
+  gap: clamp(10px, 2vw, 12px);
   flex-wrap: wrap;
   justify-content: center;
 }

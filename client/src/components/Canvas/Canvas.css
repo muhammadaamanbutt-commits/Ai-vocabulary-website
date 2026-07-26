@@ -39,10 +39,12 @@
 
 .canvas-label {
   position: absolute;
-  top: clamp(12px, 2.5vw, 22px);
-  left: clamp(12px, 3vw, 24px);
+  top: clamp(8px, 2vw, 16px);
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: clamp(6px, 1.5vw, 9px);
   font-size: clamp(8px, 1.3vw, 10.5px);
   color: var(--fg-dim);
@@ -50,18 +52,7 @@
   font-family: 'JetBrains Mono', monospace;
   pointer-events: auto;
   flex-wrap: wrap;
-}
-
-/* Responsive header for narrow screens */
-@media (max-width: 640px) {
-  .canvas-label {
-    width: calc(100% - 24px);
-    justify-content: center;
-    top: 8px;
-    left: 12px;
-    font-size: 9px;
-    gap: 6px;
-  }
+  width: auto;
 }
 
 .live-dot {
@@ -309,8 +300,21 @@
   transform: translateX(-50%);
 }
 
-.cluster-word.clickable:hover::after {
-  width: 80%;
+/* Hover effects only on devices with fine pointer (desktop) */
+@media (hover: hover) and (pointer: fine) {
+  .cluster-word.clickable:hover::after {
+    width: 80%;
+  }
+  
+  .cluster-word:hover {
+    color: var(--accent) !important;
+    font-size: clamp(18px, 3vw, 26px) !important;
+    font-style: normal !important;
+    font-weight: 600 !important;
+    text-shadow: 0 0 15px rgba(204, 255, 51, 0.5), 0 1px 5px rgba(0, 0, 0, 0.9);
+    z-index: 20;
+    letter-spacing: -0.01em;
+  }
 }
 
 /* Animation for word moving to center */
@@ -347,16 +351,6 @@
     font-weight: 700 !important;
     text-shadow: 0 0 50px rgba(204, 255, 51, 1), 0 4px 20px rgba(0, 0, 0, 1);
   }
-}
-
-.cluster-word:hover {
-  color: var(--accent) !important;
-  font-size: clamp(18px, 3vw, 26px) !important;
-  font-style: normal !important;
-  font-weight: 600 !important;
-  text-shadow: 0 0 15px rgba(204, 255, 51, 0.5), 0 1px 5px rgba(0, 0, 0, 0.9);
-  z-index: 20;
-  letter-spacing: -0.01em;
 }
 
 /* Responsive adjustments for small screens */

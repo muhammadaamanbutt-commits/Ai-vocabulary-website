@@ -35,11 +35,11 @@ function SearchBox() {
       </form>
 
       <div className="sample-row">
-        <span className="prototype-tag">PROTOTYPE</span>
         <div className="sample-pills">
           <button className="sample-pill" onClick={() => handleSampleWord('ephemeral')}>ephemeral</button>
           <button className="sample-pill" onClick={() => handleSampleWord('serendipity')}>serendipity</button>
           <button className="sample-pill" onClick={() => handleSampleWord('ubiquitous')}>ubiquitous</button>
+          <button className="sample-pill" onClick={() => handleSampleWord('resilient')}>resilient</button>
         </div>
       </div>
     </div>
