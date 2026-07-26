@@ -150,8 +150,4 @@
   color: var(--accent);
 }
 
-@media (max-width: 900px) {
-  .sidebar {
-    display: none;
-  }
-}
+/* Sidebar is controlled by drawer wrapper in Exploration.css - no need to hide here */

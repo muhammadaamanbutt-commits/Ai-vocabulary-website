@@ -82,13 +82,22 @@ function Canvas({ wordData, currentWord, isFading }) {
     return false
   }
   
-  // Position words in a circular pattern with collision avoidance
+  // Position words in a circular pattern with collision avoidance and safe boundaries
   const positionWords = (words) => {
     const total = words.length
     const positions = []
     const centerX = dimensions.width / 2
     const centerY = dimensions.height / 2
     const baseRadius = Math.min(dimensions.width, dimensions.height) * 0.28
+    
+    // Calculate safe margins - 12% from each edge to prevent overflow
+    // Increased from 8% to ensure words never go outside at any screen size
+    const safeMarginX = dimensions.width * 0.12
+    const safeMarginY = dimensions.height * 0.12
+    const minX = safeMarginX
+    const maxX = dimensions.width - safeMarginX
+    const minY = safeMarginY
+    const maxY = dimensions.height - safeMarginY
     
     words.forEach((word, index) => {
       let angle = (index / total) * Math.PI * 2
@@ -105,12 +114,17 @@ function Canvas({ wordData, currentWord, isFading }) {
       
       while (!positioned && attempts < 20) {
         const radius = baseRadius * radiusMultiplier
-        const x = centerX + Math.cos(angle) * radius
-        const y = centerY + Math.sin(angle) * radius
+        let x = centerX + Math.cos(angle) * radius
+        let y = centerY + Math.sin(angle) * radius
         
         const wordLength = word.length
         const labelWidth = wordLength * fontSize * 0.6
         const labelHeight = fontSize * 1.5
+        
+        // Clamp positions to stay within safe boundaries
+        // Account for label dimensions when clamping
+        x = Math.max(minX + labelWidth / 2, Math.min(x, maxX - labelWidth / 2))
+        y = Math.max(minY + labelHeight / 2, Math.min(y, maxY - labelHeight / 2))
         
         const newPos = { 
           x, 
@@ -139,13 +153,21 @@ function Canvas({ wordData, currentWord, isFading }) {
       // Fallback if collision detection fails
       if (!positioned) {
         const radius = baseRadius * radiusMultiplier
-        const x = centerX + Math.cos(angle) * radius
-        const y = centerY + Math.sin(angle) * radius
+        let x = centerX + Math.cos(angle) * radius
+        let y = centerY + Math.sin(angle) * radius
+        
+        const labelWidth = word.length * fontSize * 0.6
+        const labelHeight = fontSize * 1.5
+        
+        // Apply safe boundary clamping to fallback position too
+        x = Math.max(minX + labelWidth / 2, Math.min(x, maxX - labelWidth / 2))
+        y = Math.max(minY + labelHeight / 2, Math.min(y, maxY - labelHeight / 2))
+        
         positions.push({ 
           x, 
           y, 
-          width: word.length * fontSize * 0.6, 
-          height: fontSize * 1.5,
+          width: labelWidth, 
+          height: labelHeight,
           angle,
           radius
         })

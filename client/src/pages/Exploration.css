@@ -127,10 +127,6 @@
     transform: translateX(0);
   }
 
-  .sidebar-wrapper.open ~ .drawer-overlay {
-    display: block;
-  }
-
   .drawer-close {
     display: flex;
     position: absolute;
@@ -208,10 +204,6 @@
 
   .sidebar-wrapper.open {
     transform: translateX(0);
-  }
-
-  .sidebar-wrapper.open ~ .drawer-overlay {
-    display: block;
   }
 
   .drawer-close {

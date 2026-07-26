@@ -4,6 +4,7 @@ import Navigation from '../components/Navigation/Navigation'
 import Sidebar from '../components/Sidebar/Sidebar'
 import Canvas from '../components/Canvas/Canvas'
 import DetailPanel from '../components/DetailPanel/DetailPanel'
+import { getMockWordData } from '../mockData'
 import './Exploration.css'
 
 function Exploration() {
@@ -17,6 +18,10 @@ function Exploration() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('map') // 'map' or 'definition'
   const wordDataCache = useRef({}) // Cache to store fetched word data
+  
+  // Check if we should use mock data (development mode)
+  const useMockData = import.meta.env.VITE_USE_MOCK_DATA === 'true' || 
+                      (import.meta.env.DEV && import.meta.env.VITE_USE_MOCK_DATA !== 'false')
 
   useEffect(() => {
     const word = searchParams.get('word')
@@ -59,10 +64,19 @@ function Exploration() {
   const fetchWordData = async (word) => {
     setLoading(true)
     try {
-      // Use relative path in production, environment variable in development
-      const apiUrl = import.meta.env.VITE_API_URL || ''
-      const response = await fetch(`${apiUrl}/api/words?term=${encodeURIComponent(word)}`)
-      const data = await response.json()
+      let data;
+      
+      if (useMockData) {
+        // Use mock data in development mode
+        console.log('🔧 Using mock data for:', word)
+        data = await getMockWordData(word)
+      } else {
+        // Use real API in production
+        const apiUrl = import.meta.env.VITE_API_URL || ''
+        const response = await fetch(`${apiUrl}/api/words?term=${encodeURIComponent(word)}`)
+        data = await response.json()
+      }
+      
       setWordData(data)
       // Cache the fetched data
       wordDataCache.current[word] = data
@@ -109,6 +123,37 @@ function Exploration() {
     <>
       <Navigation />
       <div className="exploration">
+        {/* Mock Data Indicator Badge */}
+        {useMockData && (
+          <div 
+            className="mock-data-badge" 
+            style={{
+              position: 'fixed',
+              bottom: '20px',
+              right: '20px',
+              backgroundColor: '#4caf50',
+              color: 'white',
+              padding: '8px 16px',
+              borderRadius: '20px',
+              fontSize: '12px',
+              fontWeight: '600',
+              zIndex: 1000,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+            title="Using mock data for local development"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
+            Mock Data
+          </div>
+        )}
+        
         {/* Drawer Trigger Button - Only show when Map tab is active */}
         {activeTab === 'map' && (
           <button 
