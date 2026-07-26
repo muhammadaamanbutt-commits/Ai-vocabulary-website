@@ -189,14 +189,8 @@ function Canvas({ wordData, currentWord, isFading }) {
         </div>
         
         {/* Loading state - show "Meaning..." text */}
-        <div className="central-node">
-          <div 
-            className="blob-wrapper"
-            style={{
-              width: `${Math.min(dimensions.width, dimensions.height) * 0.45}px`,
-              height: `${Math.min(dimensions.width, dimensions.height) * 0.45}px`
-            }}
-          >
+        <div className="central-node loading-state">
+          <div className="blob-wrapper-loading">
             <svg className="blob-svg" viewBox="0 0 400 400">
               <defs>
                 <radialGradient id="blobCore" cx="50%" cy="50%" r="50%">
@@ -246,7 +240,6 @@ function Canvas({ wordData, currentWord, isFading }) {
           <div className="central-word loading">
             <span 
               className="word loading-text"
-              style={{ fontSize: `${getFontSize(28)}px` }}
             >
               Meaning...
             </span>
