@@ -59,7 +59,8 @@ function Exploration() {
   const fetchWordData = async (word) => {
     setLoading(true)
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+      // Use relative path in production, environment variable in development
+      const apiUrl = import.meta.env.VITE_API_URL || ''
       const response = await fetch(`${apiUrl}/api/words?term=${encodeURIComponent(word)}`)
       const data = await response.json()
       setWordData(data)
