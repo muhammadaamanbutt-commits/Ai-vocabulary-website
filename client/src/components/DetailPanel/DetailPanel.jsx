@@ -1,10 +1,20 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './DetailPanel.css'
 
 function DetailPanel({ wordData, currentWord, isFading }) {
   const navigate = useNavigate()
   const [selectedField, setSelectedField] = useState(null)
+  const definitionDisplayRef = useRef(null)
+
+  useEffect(() => {
+    if (selectedField !== null && definitionDisplayRef.current) {
+      definitionDisplayRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'nearest' 
+      })
+    }
+  }, [selectedField])
 
   if (!wordData) {
     return (
@@ -84,7 +94,7 @@ function DetailPanel({ wordData, currentWord, isFading }) {
           </div>
 
           {selectedField !== null && field_definitions?.[selectedField] && (
-            <div className="field-definition-display">
+            <div className="field-definition-display" ref={definitionDisplayRef}>
               <div className="field-def-header">{field_definitions[selectedField].field}</div>
               <div className="field-def-text">{field_definitions[selectedField].definition}</div>
             </div>
