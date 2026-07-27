@@ -1,10 +1,12 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
+import SearchModal from '../SearchModal/SearchModal'
 import './Navigation.css'
 
 function Navigation() {
   const location = useLocation()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
   const drawerRef = useRef(null)
 
   // Body scroll lock when menu is open
@@ -51,6 +53,14 @@ function Navigation() {
     setIsMenuOpen(false)
   }
 
+  const openSearch = () => {
+    setIsSearchOpen(true)
+  }
+
+  const closeSearch = () => {
+    setIsSearchOpen(false)
+  }
+
   return (
     <>
       <nav className="nav">
@@ -79,7 +89,7 @@ function Navigation() {
             <span className="hamburger-line"></span>
           </button>
 
-          <button className="nav-icon-btn" aria-label="Search">
+          <button className="nav-icon-btn" aria-label="Search" onClick={openSearch}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="11" cy="11" r="7" />
               <line x1="21" y1="21" x2="16.5" y2="16.5" />
@@ -136,6 +146,9 @@ function Navigation() {
           </li>
         </ul>
       </div>
+
+      {/* Search Modal */}
+      <SearchModal isOpen={isSearchOpen} onClose={closeSearch} />
     </>
   )
 }

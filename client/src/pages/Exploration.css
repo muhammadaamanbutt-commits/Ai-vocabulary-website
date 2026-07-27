@@ -53,6 +53,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -130,8 +131,8 @@
   .drawer-close {
     display: flex;
     position: absolute;
-    top: 16px;
-    right: 16px;
+    top: 37px;
+    right: 11px;
     z-index: 10;
     width: 32px;
     height: 32px;
@@ -209,7 +210,7 @@
   .drawer-close {
     display: flex;
     position: absolute;
-    top: 16px;
+    top: 43px;
     right: 16px;
     z-index: 10;
     width: 32px;
@@ -276,6 +277,7 @@
     from {
       transform: scaleX(0);
     }
+
     to {
       transform: scaleX(1);
     }
