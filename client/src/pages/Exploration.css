@@ -79,7 +79,11 @@
   display: contents;
 }
 
-.canvas-container,
+.canvas-container {
+  overflow: hidden;
+  min-height: 0;
+}
+
 .detail-container {
   display: contents;
 }
@@ -91,10 +95,8 @@
   }
 
   .canvas-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: auto;
+    overflow: hidden;
+    min-height: 0;
   }
 }
 
@@ -164,10 +166,8 @@
   }
 
   .canvas-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: auto;
+    overflow: hidden;
+    min-height: 0;
   }
 
   .detail-container {
@@ -306,9 +306,7 @@
   }
 
   .canvas-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: block;
   }
 
   .detail-container {

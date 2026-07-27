@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Canvas.css'
 
@@ -7,16 +7,14 @@ function Canvas({ wordData, currentWord, isFading }) {
   const [animatingWord, setAnimatingWord] = useState(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [hoveredWord, setHoveredWord] = useState(null)
-  const [dimensions, setDimensions] = useState({ width: 800, height: 800 })
+  const [dimensions, setDimensions] = useState({ width: 800, height: 600 })
   const [isTouchDevice, setIsTouchDevice] = useState(false)
   const containerRef = useRef(null)
   
   // Detect touch device on mount
   useEffect(() => {
     const checkTouchDevice = () => {
-      // Check if device has coarse pointer (touch) as primary input
       const hasCoarsePointer = window.matchMedia('(pointer: coarse)').matches
-      // Check if device doesn't support hover
       const noHover = window.matchMedia('(hover: none)').matches
       setIsTouchDevice(hasCoarsePointer || noHover)
     }
@@ -28,7 +26,6 @@ function Canvas({ wordData, currentWord, isFading }) {
   useEffect(() => {
     if (!containerRef.current) return
     
-    // Set initial dimensions immediately
     const rect = containerRef.current.getBoundingClientRect()
     if (rect.width > 0 && rect.height > 0) {
       setDimensions({ width: rect.width, height: rect.height })
@@ -37,7 +34,9 @@ function Canvas({ wordData, currentWord, isFading }) {
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect
-        setDimensions({ width, height })
+        if (width > 0 && height > 0) {
+          setDimensions({ width, height })
+        }
       }
     })
     
@@ -48,141 +47,221 @@ function Canvas({ wordData, currentWord, isFading }) {
     }
   }, [])
   
-  // Calculate scale factor based on container size
-  const getScaleFactor = () => {
-    const baseSize = 800 // Design baseline
-    const size = Math.min(dimensions.width, dimensions.height)
-    return size / baseSize
-  }
+  // Get the effective radius for layout — use both axes to form an ellipse
+  const getLayoutMetrics = useCallback(() => {
+    const w = dimensions.width
+    const h = dimensions.height
+    const minDim = Math.min(w, h)
+    const maxDim = Math.max(w, h)
+    
+    // Use area as primary sizing metric — handles narrow-but-tall or wide-but-short
+    const area = w * h
+    
+    // Determine if we're on a small canvas
+    const isSmall = area < 200000   // ~450x450 or ~400x500
+    const isMedium = area < 350000  // ~600x600 or ~500x700
+    
+    return { w, h, minDim, maxDim, area, isSmall, isMedium }
+  }, [dimensions])
   
-  // Calculate font sizes with minimum floor
-  const getFontSize = (baseSize) => {
-    const scaleFactor = getScaleFactor()
-    const scaled = baseSize * scaleFactor
-    const isMobile = dimensions.width < 768
-    // Higher minimum sizes on mobile for better readability
-    const minSize = isMobile ? (baseSize <= 14 ? 14 : 16) : (baseSize <= 14 ? 11 : 12)
-    return Math.max(scaled, minSize)
-  }
+  // Calculate font sizes based on available canvas area
+  const getFontSize = useCallback((tier) => {
+    const { area, isSmall, isMedium } = getLayoutMetrics()
+    
+    // Reference area: 800*700 = 560000
+    const refArea = 560000
+    // Scale factor based on area, with a floor
+    const scale = Math.max(0.55, Math.sqrt(area / refArea))
+    
+    // Base sizes per tier at reference area
+    const idealSizes = [17, 14.5, 12.5]   // near, medium, far
+    const minSizes  = [11, 10.5, 10]      // absolute minimums — tight but readable
+    
+    let size = idealSizes[tier] * scale
+    
+    // On very small canvases, allow smaller fonts to fit all words
+    if (isSmall) {
+      size = Math.max(size, minSizes[tier])
+    } else if (isMedium) {
+      size = Math.max(size, minSizes[tier] + 1)
+    } else {
+      // Large canvases: enforce comfortable minimums
+      size = Math.max(size, 12)
+    }
+    
+    // Cap maximum to avoid absurdly large text on huge screens
+    const maxSizes = [22, 18, 16]
+    return Math.min(Math.max(size, minSizes[tier]), maxSizes[tier])
+  }, [getLayoutMetrics])
   
-  // Detect collision between labels
-  const detectCollision = (positions, newPos, wordLength, fontSize) => {
-    // Approximate label width based on character count and font size
-    const labelWidth = wordLength * fontSize * 0.6
-    const labelHeight = fontSize * 1.5
+  // Get central word font size
+  const getCentralFontSize = useCallback(() => {
+    const { area } = getLayoutMetrics()
+    const scale = Math.max(0.55, Math.sqrt(area / 560000))
+    return Math.min(Math.max(18, 30 * scale), 40)
+  }, [getLayoutMetrics])
+  
+  // Detect collision between labels with area-adaptive padding
+  const detectCollision = useCallback((positions, newPos, tight) => {
+    // Use tighter padding on small canvases
+    const padX = tight ? 2 : 6
+    const padY = tight ? 1 : 3
     
     for (const pos of positions) {
       const dx = Math.abs(newPos.x - pos.x)
       const dy = Math.abs(newPos.y - pos.y)
       
-      // Check if bounding boxes overlap with some padding
-      if (dx < (labelWidth + pos.width) / 2 + 10 && 
-          dy < (labelHeight + pos.height) / 2 + 10) {
+      const overlapX = (newPos.width + pos.width) / 2 + padX
+      const overlapY = (newPos.height + pos.height) / 2 + padY
+      
+      if (dx < overlapX && dy < overlapY) {
         return true
       }
     }
     return false
-  }
+  }, [])
   
-  // Position words in a circular pattern with collision avoidance and safe boundaries
-  const positionWords = (words) => {
+  // Position words using elliptical distribution adapted to container shape
+  const positionWords = useCallback((words) => {
     const total = words.length
     const positions = []
-    const centerX = dimensions.width / 2
-    const centerY = dimensions.height / 2
-    // Increase radius on mobile for better spread
-    const isMobile = dimensions.width < 768
-    const baseRadius = Math.min(dimensions.width, dimensions.height) * (isMobile ? 0.35 : 0.28)
+    const { w, h, area, isSmall } = getLayoutMetrics()
+    const centerX = w / 2
+    const centerY = h / 2
     
-    // Reduce margins on mobile to use more space, but keep words visible
-    const marginPercent = isMobile ? 0.08 : 0.12
-    const safeMarginX = dimensions.width * marginPercent
-    const safeMarginY = dimensions.height * marginPercent
-    const minX = safeMarginX
-    const maxX = dimensions.width - safeMarginX
-    const minY = safeMarginY
-    const maxY = dimensions.height - safeMarginY
+    // Adapt radius fraction to available space
+    // On small canvases, use more of the space
+    const radiusFraction = isSmall ? 0.38 : 0.34
+    const radiusX = w * radiusFraction
+    const radiusY = h * radiusFraction
+    
+    // Tighter margins on small canvases
+    const marginFrac = isSmall ? 0.03 : 0.06
+    const marginX = Math.max(20, w * marginFrac)
+    const marginY = Math.max(15, h * marginFrac)
+    
+    // Golden angle for better distribution
+    const goldenAngle = Math.PI * (3 - Math.sqrt(5))
     
     words.forEach((word, index) => {
-      let angle = (index / total) * Math.PI * 2
-      let attempts = 0
-      let positioned = false
-      
-      // Determine tier and radius
       const tier = index % 3
-      let radiusMultiplier = 1 + (tier * 0.18)
+      const fontSize = getFontSize(tier)
       
-      // Calculate font size based on tier
-      const isMobile = dimensions.width < 768
-      const baseFontSize = isMobile 
-        ? (tier === 0 ? 20 : tier === 1 ? 18 : 16)  // Larger on mobile
-        : (tier === 0 ? 16 : tier === 1 ? 14 : 12)  // Normal on desktop
-      const fontSize = getFontSize(baseFontSize)
+      // Approximate label dimensions
+      const labelWidth = word.length * fontSize * 0.55 + 8
+      const labelHeight = fontSize * 1.4
       
-      while (!positioned && attempts < 20) {
-        const radius = baseRadius * radiusMultiplier
-        let x = centerX + Math.cos(angle) * radius
-        let y = centerY + Math.sin(angle) * radius
+      // Tier-based radius multiplier
+      const tierMultiplier = 0.7 + (tier * 0.2)
+      
+      let baseAngle = index * goldenAngle
+      let placed = false
+      let bestPos = null
+      let bestCollisions = Infinity
+      
+      // Phase 1: Try with normal collision detection (60 attempts)
+      for (let attempt = 0; attempt < 60 && !placed; attempt++) {
+        const angleStep = (Math.PI * 2) / 20  // finer angle steps
+        const angleOffset = attempt * angleStep * 0.3
+        const radiusBoost = 1 + (Math.floor(attempt / 15) * 0.06)
         
-        const wordLength = word.length
-        const labelWidth = wordLength * fontSize * 0.6
-        const labelHeight = fontSize * 1.5
+        const angle = baseAngle + angleOffset * (attempt % 2 === 0 ? 1 : -1)
+        const rx = radiusX * tierMultiplier * radiusBoost
+        const ry = radiusY * tierMultiplier * radiusBoost
         
-        // Clamp positions to stay within safe boundaries
-        // Account for label dimensions when clamping
-        x = Math.max(minX + labelWidth / 2, Math.min(x, maxX - labelWidth / 2))
-        y = Math.max(minY + labelHeight / 2, Math.min(y, maxY - labelHeight / 2))
+        let x = centerX + Math.cos(angle) * rx
+        let y = centerY + Math.sin(angle) * ry
+        
+        // Clamp within boundaries
+        const halfW = labelWidth / 2
+        const halfH = labelHeight / 2
+        x = Math.max(marginX + halfW, Math.min(x, w - marginX - halfW))
+        y = Math.max(marginY + halfH, Math.min(y, h - marginY - halfH))
         
         const newPos = { 
-          x, 
-          y, 
+          x, y, 
           width: labelWidth, 
           height: labelHeight,
           angle,
-          radius
+          radius: Math.sqrt(rx * rx + ry * ry)
         }
         
-        // Check collision
-        if (!detectCollision(positions, newPos, wordLength, fontSize)) {
+        if (!detectCollision(positions, newPos, isSmall)) {
           positions.push(newPos)
-          positioned = true
+          placed = true
         } else {
-          // Adjust angle slightly or increase radius
-          if (attempts < 10) {
-            angle += (Math.PI * 2) / (total * 2) // Fine-tune angle
-          } else {
-            radiusMultiplier += 0.05 // Push out slightly
+          // Track the position with fewest collisions as fallback
+          let collisions = 0
+          for (const pos of positions) {
+            const dx = Math.abs(newPos.x - pos.x)
+            const dy = Math.abs(newPos.y - pos.y)
+            if (dx < (newPos.width + pos.width) / 2 && dy < (newPos.height + pos.height) / 2) {
+              collisions++
+            }
           }
-          attempts++
+          if (collisions < bestCollisions) {
+            bestCollisions = collisions
+            bestPos = { ...newPos }
+          }
         }
       }
       
-      // Fallback if collision detection fails
-      if (!positioned) {
-        const radius = baseRadius * radiusMultiplier
-        let x = centerX + Math.cos(angle) * radius
-        let y = centerY + Math.sin(angle) * radius
-        
-        const labelWidth = word.length * fontSize * 0.6
-        const labelHeight = fontSize * 1.5
-        
-        // Apply safe boundary clamping to fallback position too
-        x = Math.max(minX + labelWidth / 2, Math.min(x, maxX - labelWidth / 2))
-        y = Math.max(minY + labelHeight / 2, Math.min(y, maxY - labelHeight / 2))
-        
-        positions.push({ 
-          x, 
-          y, 
-          width: labelWidth, 
-          height: labelHeight,
-          angle,
-          radius
-        })
+      // Phase 2: Spiral outward with tight collision detection
+      if (!placed) {
+        for (let spiral = 0; spiral < 48 && !placed; spiral++) {
+          const sAngle = baseAngle + spiral * (Math.PI / 8)
+          const sRadius = 0.6 + (spiral * 0.04)
+          
+          let x = centerX + Math.cos(sAngle) * radiusX * sRadius
+          let y = centerY + Math.sin(sAngle) * radiusY * sRadius
+          
+          const halfW = labelWidth / 2
+          const halfH = labelHeight / 2
+          x = Math.max(marginX + halfW, Math.min(x, w - marginX - halfW))
+          y = Math.max(marginY + halfH, Math.min(y, h - marginY - halfH))
+          
+          const newPos = { 
+            x, y, 
+            width: labelWidth, 
+            height: labelHeight,
+            angle: sAngle,
+            radius: Math.sqrt(radiusX * radiusX + radiusY * radiusY) * sRadius
+          }
+          
+          // Use tight collision detection
+          if (!detectCollision(positions, newPos, true)) {
+            positions.push(newPos)
+            placed = true
+          }
+        }
+      }
+      
+      // Phase 3: ALWAYS place the word — use best found position
+      if (!placed) {
+        if (bestPos) {
+          positions.push(bestPos)
+        } else {
+          // Absolute last resort
+          const angle = baseAngle
+          let x = centerX + Math.cos(angle) * radiusX * tierMultiplier
+          let y = centerY + Math.sin(angle) * radiusY * tierMultiplier
+          const halfW = labelWidth / 2
+          const halfH = labelHeight / 2
+          x = Math.max(marginX + halfW, Math.min(x, w - marginX - halfW))
+          y = Math.max(marginY + halfH, Math.min(y, h - marginY - halfH))
+          positions.push({ 
+            x, y, 
+            width: labelWidth, 
+            height: labelHeight,
+            angle,
+            radius: Math.sqrt(radiusX * radiusX + radiusY * radiusY) * tierMultiplier
+          })
+        }
       }
     })
     
     return positions
-  }
+  }, [getLayoutMetrics, getFontSize, detectCollision])
   
   // Show loading state when data is being fetched
   if (!wordData || !wordData.related_words) {
@@ -279,8 +358,14 @@ function Canvas({ wordData, currentWord, isFading }) {
     }, 600)
   }
   
-  // Calculate blob edge radius for connection lines
-  const blobRadius = Math.min(dimensions.width, dimensions.height) * 0.18
+  // Calculate blob size based on smaller dimension
+  const minDim = Math.min(dimensions.width, dimensions.height)
+  const blobSize = minDim * 0.42
+  const blobRadius = minDim * 0.18
+  
+  // Ring radii — use elliptical if container is non-square
+  const ringRx = dimensions.width * 0.18
+  const ringRy = dimensions.height * 0.18
 
   return (
     <div className={`canvas ${isFading ? 'fading' : ''}`} ref={containerRef}>
@@ -291,33 +376,37 @@ function Canvas({ wordData, currentWord, isFading }) {
         </div>
       </div>
 
-      {/* Concentric guide rings - dynamically sized */}
+      {/* Concentric guide rings - elliptical to match container shape */}
       <svg 
         className="concentric-rings" 
         width={dimensions.width} 
         height={dimensions.height} 
         viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
       >
-        <circle 
+        <ellipse 
           cx={dimensions.width / 2} 
           cy={dimensions.height / 2} 
-          r={Math.min(dimensions.width, dimensions.height) * 0.18} 
+          rx={ringRx} 
+          ry={ringRy}
         />
-        <circle 
+        <ellipse 
           cx={dimensions.width / 2} 
           cy={dimensions.height / 2} 
-          r={Math.min(dimensions.width, dimensions.height) * 0.27} 
+          rx={ringRx * 1.5} 
+          ry={ringRy * 1.5}
           className="dashed" 
         />
-        <circle 
+        <ellipse 
           cx={dimensions.width / 2} 
           cy={dimensions.height / 2} 
-          r={Math.min(dimensions.width, dimensions.height) * 0.36} 
+          rx={ringRx * 2} 
+          ry={ringRy * 2}
         />
-        <circle 
+        <ellipse 
           cx={dimensions.width / 2} 
           cy={dimensions.height / 2} 
-          r={Math.min(dimensions.width, dimensions.height) * 0.46} 
+          rx={ringRx * 2.55} 
+          ry={ringRy * 2.55}
           className="dashed" 
         />
       </svg>
@@ -328,11 +417,11 @@ function Canvas({ wordData, currentWord, isFading }) {
           const centerX = dimensions.width / 2
           const centerY = dimensions.height / 2
           
-          // Blob edge (start point)
-          const x1 = centerX + Math.cos(pos.angle) * blobRadius
-          const y1 = centerY + Math.sin(pos.angle) * blobRadius
+          // Blob edge (start point) — use angle to blob edge
+          const angle = Math.atan2(pos.y - centerY, pos.x - centerX)
+          const x1 = centerX + Math.cos(angle) * blobRadius
+          const y1 = centerY + Math.sin(angle) * blobRadius
           
-          // Word position (end point)
           const x2 = pos.x
           const y2 = pos.y
           
@@ -353,8 +442,8 @@ function Canvas({ wordData, currentWord, isFading }) {
         <div 
           className="blob-wrapper"
           style={{
-            width: `${Math.min(dimensions.width, dimensions.height) * 0.45}px`,
-            height: `${Math.min(dimensions.width, dimensions.height) * 0.45}px`
+            width: `${blobSize}px`,
+            height: `${blobSize}px`
           }}
         >
           <svg className="blob-svg" viewBox="0 0 400 400">
@@ -406,7 +495,7 @@ function Canvas({ wordData, currentWord, isFading }) {
         <div className={`central-word ${isTransitioning ? 'fade-out' : ''}`}>
           <span 
             className="word"
-            style={{ fontSize: `${getFontSize(32)}px` }}
+            style={{ fontSize: `${getCentralFontSize()}px` }}
           >
             {currentWord}
           </span>
@@ -418,8 +507,7 @@ function Canvas({ wordData, currentWord, isFading }) {
         {related_words.map((word, index) => {
           const pos = wordPositions[index]
           const tier = index % 3
-          const baseFontSize = tier === 0 ? 16 : tier === 1 ? 14 : 12
-          const fontSize = getFontSize(baseFontSize)
+          const fontSize = getFontSize(tier)
           
           return (
             <div
