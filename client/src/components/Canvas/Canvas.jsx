@@ -94,12 +94,30 @@ function Canvas({ wordData, currentWord, isFading }) {
     return Math.min(Math.max(size, minSizes[tier]), maxSizes[tier])
   }, [getLayoutMetrics])
 
-  // Get central word font size
-  const getCentralFontSize = useCallback(() => {
+  // Get central word font size - dynamically scales to fit inside the blob
+  const getCentralFontSize = useCallback((word) => {
+    if (!word) return 24
+    
+    const minDim = Math.min(dimensions.width, dimensions.height)
+    // The blob visual size is 0.42 of minDim, but text should fit in ~60% of blob diameter
+    const maxTextWidth = minDim * 0.42 * 0.6
+    
+    // Estimate character width (0.6 is average ratio for most fonts)
+    const charCount = word.length
+    
+    // Calculate font size that fits the word within maxTextWidth
+    // Average char width is ~0.6em, so total width ≈ fontSize * charCount * 0.6
+    let fontSize = maxTextWidth / (charCount * 0.6)
+    
+    // Apply min/max bounds based on screen size
     const { area } = getLayoutMetrics()
-    const scale = Math.max(0.55, Math.sqrt(area / 560000))
-    return Math.min(Math.max(18, 30 * scale), 40)
-  }, [getLayoutMetrics])
+    const minSize = area < 200000 ? 16 : area < 350000 ? 18 : 20
+    const maxSize = area < 200000 ? 28 : area < 350000 ? 36 : 44
+    
+    fontSize = Math.max(minSize, Math.min(fontSize, maxSize))
+    
+    return fontSize
+  }, [dimensions, getLayoutMetrics])
 
   // Detect collision between labels with area-adaptive padding
   const detectCollision = useCallback((positions, newPos, tight) => {
@@ -495,7 +513,7 @@ function Canvas({ wordData, currentWord, isFading }) {
         <div className={`central-word ${isTransitioning ? 'fade-out' : ''}`}>
           <span
             className="word"
-            style={{ fontSize: `${getCentralFontSize()}px` }}
+            style={{ fontSize: `${getCentralFontSize(currentWord)}px` }}
           >
             {currentWord}
           </span>
