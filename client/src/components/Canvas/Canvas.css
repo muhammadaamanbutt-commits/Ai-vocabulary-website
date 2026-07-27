@@ -70,6 +70,7 @@
   transform: translate(-50%, -50%);
   pointer-events: none;
   z-index: 1;
+  opacity: 0 !important;
 }
 
 .concentric-rings circle {
@@ -97,7 +98,7 @@
 }
 
 .connection-lines line {
-  stroke: rgba(204, 255, 51, 0.459);
+  stroke: rgba(204, 255, 51, 0.589);
   stroke-width: 1;
   stroke-dasharray: 2 4;
 }
@@ -239,6 +240,8 @@
   inset: 0;
   z-index: 5;
   transition: opacity 0.3s ease;
+  /* background: #515c14;
+  background: radial-gradient(circle, rgba(81, 92, 20, 0.26) 0%, rgba(8, 8, 8, 1) 60%); */
 }
 
 .canvas.fading .cluster-container {

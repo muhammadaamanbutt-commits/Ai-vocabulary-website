@@ -10,7 +10,7 @@ function Canvas({ wordData, currentWord, isFading }) {
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 })
   const [isTouchDevice, setIsTouchDevice] = useState(false)
   const containerRef = useRef(null)
-  
+
   // Detect touch device on mount
   useEffect(() => {
     const checkTouchDevice = () => {
@@ -18,19 +18,19 @@ function Canvas({ wordData, currentWord, isFading }) {
       const noHover = window.matchMedia('(hover: none)').matches
       setIsTouchDevice(hasCoarsePointer || noHover)
     }
-    
+
     checkTouchDevice()
   }, [])
-  
+
   // ResizeObserver to track container dimensions dynamically
   useEffect(() => {
     if (!containerRef.current) return
-    
+
     const rect = containerRef.current.getBoundingClientRect()
     if (rect.width > 0 && rect.height > 0) {
       setDimensions({ width: rect.width, height: rect.height })
     }
-    
+
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect
@@ -39,46 +39,46 @@ function Canvas({ wordData, currentWord, isFading }) {
         }
       }
     })
-    
+
     resizeObserver.observe(containerRef.current)
-    
+
     return () => {
       resizeObserver.disconnect()
     }
   }, [])
-  
+
   // Get the effective radius for layout — use both axes to form an ellipse
   const getLayoutMetrics = useCallback(() => {
     const w = dimensions.width
     const h = dimensions.height
     const minDim = Math.min(w, h)
     const maxDim = Math.max(w, h)
-    
+
     // Use area as primary sizing metric — handles narrow-but-tall or wide-but-short
     const area = w * h
-    
+
     // Determine if we're on a small canvas
     const isSmall = area < 200000   // ~450x450 or ~400x500
     const isMedium = area < 350000  // ~600x600 or ~500x700
-    
+
     return { w, h, minDim, maxDim, area, isSmall, isMedium }
   }, [dimensions])
-  
+
   // Calculate font sizes based on available canvas area
   const getFontSize = useCallback((tier) => {
     const { area, isSmall, isMedium } = getLayoutMetrics()
-    
+
     // Reference area: 800*700 = 560000
     const refArea = 560000
     // Scale factor based on area, with a floor
     const scale = Math.max(0.55, Math.sqrt(area / refArea))
-    
+
     // Base sizes per tier at reference area
     const idealSizes = [17, 14.5, 12.5]   // near, medium, far
-    const minSizes  = [11, 10.5, 10]      // absolute minimums — tight but readable
-    
+    const minSizes = [11, 10.5, 10]      // absolute minimums — tight but readable
+
     let size = idealSizes[tier] * scale
-    
+
     // On very small canvases, allow smaller fonts to fit all words
     if (isSmall) {
       size = Math.max(size, minSizes[tier])
@@ -88,39 +88,39 @@ function Canvas({ wordData, currentWord, isFading }) {
       // Large canvases: enforce comfortable minimums
       size = Math.max(size, 12)
     }
-    
+
     // Cap maximum to avoid absurdly large text on huge screens
     const maxSizes = [22, 18, 16]
     return Math.min(Math.max(size, minSizes[tier]), maxSizes[tier])
   }, [getLayoutMetrics])
-  
+
   // Get central word font size
   const getCentralFontSize = useCallback(() => {
     const { area } = getLayoutMetrics()
     const scale = Math.max(0.55, Math.sqrt(area / 560000))
     return Math.min(Math.max(18, 30 * scale), 40)
   }, [getLayoutMetrics])
-  
+
   // Detect collision between labels with area-adaptive padding
   const detectCollision = useCallback((positions, newPos, tight) => {
     // Use tighter padding on small canvases
     const padX = tight ? 2 : 6
     const padY = tight ? 1 : 3
-    
+
     for (const pos of positions) {
       const dx = Math.abs(newPos.x - pos.x)
       const dy = Math.abs(newPos.y - pos.y)
-      
+
       const overlapX = (newPos.width + pos.width) / 2 + padX
       const overlapY = (newPos.height + pos.height) / 2 + padY
-      
+
       if (dx < overlapX && dy < overlapY) {
         return true
       }
     }
     return false
   }, [])
-  
+
   // Position words using elliptical distribution adapted to container shape
   const positionWords = useCallback((words) => {
     const total = words.length
@@ -128,64 +128,64 @@ function Canvas({ wordData, currentWord, isFading }) {
     const { w, h, area, isSmall } = getLayoutMetrics()
     const centerX = w / 2
     const centerY = h / 2
-    
+
     // Adapt radius fraction to available space
     // On small canvases, use more of the space
     const radiusFraction = isSmall ? 0.38 : 0.34
     const radiusX = w * radiusFraction
     const radiusY = h * radiusFraction
-    
+
     // Tighter margins on small canvases
     const marginFrac = isSmall ? 0.03 : 0.06
     const marginX = Math.max(20, w * marginFrac)
     const marginY = Math.max(15, h * marginFrac)
-    
+
     // Golden angle for better distribution
     const goldenAngle = Math.PI * (3 - Math.sqrt(5))
-    
+
     words.forEach((word, index) => {
       const tier = index % 3
       const fontSize = getFontSize(tier)
-      
+
       // Approximate label dimensions
       const labelWidth = word.length * fontSize * 0.55 + 8
       const labelHeight = fontSize * 1.4
-      
+
       // Tier-based radius multiplier
       const tierMultiplier = 0.7 + (tier * 0.2)
-      
+
       let baseAngle = index * goldenAngle
       let placed = false
       let bestPos = null
       let bestCollisions = Infinity
-      
+
       // Phase 1: Try with normal collision detection (60 attempts)
       for (let attempt = 0; attempt < 60 && !placed; attempt++) {
         const angleStep = (Math.PI * 2) / 20  // finer angle steps
         const angleOffset = attempt * angleStep * 0.3
         const radiusBoost = 1 + (Math.floor(attempt / 15) * 0.06)
-        
+
         const angle = baseAngle + angleOffset * (attempt % 2 === 0 ? 1 : -1)
         const rx = radiusX * tierMultiplier * radiusBoost
         const ry = radiusY * tierMultiplier * radiusBoost
-        
+
         let x = centerX + Math.cos(angle) * rx
         let y = centerY + Math.sin(angle) * ry
-        
+
         // Clamp within boundaries
         const halfW = labelWidth / 2
         const halfH = labelHeight / 2
         x = Math.max(marginX + halfW, Math.min(x, w - marginX - halfW))
         y = Math.max(marginY + halfH, Math.min(y, h - marginY - halfH))
-        
-        const newPos = { 
-          x, y, 
-          width: labelWidth, 
+
+        const newPos = {
+          x, y,
+          width: labelWidth,
           height: labelHeight,
           angle,
           radius: Math.sqrt(rx * rx + ry * ry)
         }
-        
+
         if (!detectCollision(positions, newPos, isSmall)) {
           positions.push(newPos)
           placed = true
@@ -205,29 +205,29 @@ function Canvas({ wordData, currentWord, isFading }) {
           }
         }
       }
-      
+
       // Phase 2: Spiral outward with tight collision detection
       if (!placed) {
         for (let spiral = 0; spiral < 48 && !placed; spiral++) {
           const sAngle = baseAngle + spiral * (Math.PI / 8)
           const sRadius = 0.6 + (spiral * 0.04)
-          
+
           let x = centerX + Math.cos(sAngle) * radiusX * sRadius
           let y = centerY + Math.sin(sAngle) * radiusY * sRadius
-          
+
           const halfW = labelWidth / 2
           const halfH = labelHeight / 2
           x = Math.max(marginX + halfW, Math.min(x, w - marginX - halfW))
           y = Math.max(marginY + halfH, Math.min(y, h - marginY - halfH))
-          
-          const newPos = { 
-            x, y, 
-            width: labelWidth, 
+
+          const newPos = {
+            x, y,
+            width: labelWidth,
             height: labelHeight,
             angle: sAngle,
             radius: Math.sqrt(radiusX * radiusX + radiusY * radiusY) * sRadius
           }
-          
+
           // Use tight collision detection
           if (!detectCollision(positions, newPos, true)) {
             positions.push(newPos)
@@ -235,7 +235,7 @@ function Canvas({ wordData, currentWord, isFading }) {
           }
         }
       }
-      
+
       // Phase 3: ALWAYS place the word — use best found position
       if (!placed) {
         if (bestPos) {
@@ -249,9 +249,9 @@ function Canvas({ wordData, currentWord, isFading }) {
           const halfH = labelHeight / 2
           x = Math.max(marginX + halfW, Math.min(x, w - marginX - halfW))
           y = Math.max(marginY + halfH, Math.min(y, h - marginY - halfH))
-          positions.push({ 
-            x, y, 
-            width: labelWidth, 
+          positions.push({
+            x, y,
+            width: labelWidth,
             height: labelHeight,
             angle,
             radius: Math.sqrt(radiusX * radiusX + radiusY * radiusY) * tierMultiplier
@@ -259,10 +259,10 @@ function Canvas({ wordData, currentWord, isFading }) {
         }
       }
     })
-    
+
     return positions
   }, [getLayoutMetrics, getFontSize, detectCollision])
-  
+
   // Show loading state when data is being fetched
   if (!wordData || !wordData.related_words) {
     return (
@@ -273,7 +273,7 @@ function Canvas({ wordData, currentWord, isFading }) {
             <span>LOADING SEMANTIC FIELD</span>
           </div>
         </div>
-        
+
         {/* Loading state - show "Meaning..." text */}
         <div className="central-node loading-state">
           <div className="blob-wrapper-loading">
@@ -307,24 +307,24 @@ function Canvas({ wordData, currentWord, isFading }) {
                 <circle cx="240" cy="220" r="32" fill="#ccff33" fillOpacity="0.08" />
               </g>
 
-              <path 
-                d="M 200,90 C 260,82 310,120 325,170 C 340,220 318,275 270,300 C 220,325 155,315 115,280 C 75,245 70,185 95,140 C 120,95 165,88 200,90 Z" 
-                fill="url(#blobInner)" 
+              <path
+                d="M 200,90 C 260,82 310,120 325,170 C 340,220 318,275 270,300 C 220,325 155,315 115,280 C 75,245 70,185 95,140 C 120,95 165,88 200,90 Z"
+                fill="url(#blobInner)"
                 stroke="rgba(204,255,51,0.45)"
-                strokeWidth="1.2" 
+                strokeWidth="1.2"
               />
 
-              <path 
-                d="M 200,110 C 250,103 290,135 305,175 C 320,215 305,260 265,285 C 220,310 165,300 130,270 C 95,240 90,190 110,155 C 130,120 170,108 200,110 Z" 
-                fill="none" 
-                stroke="rgba(204,255,51,0.18)" 
+              <path
+                d="M 200,110 C 250,103 290,135 305,175 C 320,215 305,260 265,285 C 220,310 165,300 130,270 C 95,240 90,190 110,155 C 130,120 170,108 200,110 Z"
+                fill="none"
+                stroke="rgba(204,255,51,0.18)"
                 strokeWidth="0.8"
-                strokeDasharray="1 3" 
+                strokeDasharray="1 3"
               />
             </svg>
           </div>
           <div className="central-word loading">
-            <span 
+            <span
               className="word loading-text"
             >
               Meaning...
@@ -342,7 +342,7 @@ function Canvas({ wordData, currentWord, isFading }) {
     const clickedElement = event.currentTarget
     setAnimatingWord(word)
     setIsTransitioning(true)
-    
+
     const container = clickedElement.parentElement
     if (container) {
       container.style.pointerEvents = 'none'
@@ -357,12 +357,12 @@ function Canvas({ wordData, currentWord, isFading }) {
       }
     }, 600)
   }
-  
+
   // Calculate blob size based on smaller dimension
   const minDim = Math.min(dimensions.width, dimensions.height)
   const blobSize = minDim * 0.42
-  const blobRadius = minDim * 0.18
-  
+  const blobRadius = minDim * 0.15
+
   // Ring radii — use elliptical if container is non-square
   const ringRx = dimensions.width * 0.18
   const ringRy = dimensions.height * 0.18
@@ -377,54 +377,54 @@ function Canvas({ wordData, currentWord, isFading }) {
       </div>
 
       {/* Concentric guide rings - elliptical to match container shape */}
-      <svg 
-        className="concentric-rings" 
-        width={dimensions.width} 
-        height={dimensions.height} 
+      <svg
+        className="concentric-rings"
+        width={dimensions.width}
+        height={dimensions.height}
         viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
       >
-        <ellipse 
-          cx={dimensions.width / 2} 
-          cy={dimensions.height / 2} 
-          rx={ringRx} 
+        <ellipse
+          cx={dimensions.width / 2}
+          cy={dimensions.height / 2}
+          rx={ringRx}
           ry={ringRy}
         />
-        <ellipse 
-          cx={dimensions.width / 2} 
-          cy={dimensions.height / 2} 
-          rx={ringRx * 1.5} 
+        <ellipse
+          cx={dimensions.width / 2}
+          cy={dimensions.height / 2}
+          rx={ringRx * 1.5}
           ry={ringRy * 1.5}
-          className="dashed" 
+          className="dashed"
         />
-        <ellipse 
-          cx={dimensions.width / 2} 
-          cy={dimensions.height / 2} 
-          rx={ringRx * 2} 
+        <ellipse
+          cx={dimensions.width / 2}
+          cy={dimensions.height / 2}
+          rx={ringRx * 2}
           ry={ringRy * 2}
         />
-        <ellipse 
-          cx={dimensions.width / 2} 
-          cy={dimensions.height / 2} 
-          rx={ringRx * 2.55} 
+        <ellipse
+          cx={dimensions.width / 2}
+          cy={dimensions.height / 2}
+          rx={ringRx * 2.55}
           ry={ringRy * 2.55}
-          className="dashed" 
+          className="dashed"
         />
       </svg>
 
       {/* Connection lines SVG - dynamically calculated */}
       <svg className="connection-lines" width="100%" height="100%">
         {wordPositions.map((pos, index) => {
-          const centerX = dimensions.width / 2
+          const centerX = dimensions.width / 1.988
           const centerY = dimensions.height / 2
-          
+
           // Blob edge (start point) — use angle to blob edge
           const angle = Math.atan2(pos.y - centerY, pos.x - centerX)
           const x1 = centerX + Math.cos(angle) * blobRadius
           const y1 = centerY + Math.sin(angle) * blobRadius
-          
+
           const x2 = pos.x
           const y2 = pos.y
-          
+
           return (
             <line
               key={index}
@@ -439,7 +439,7 @@ function Canvas({ wordData, currentWord, isFading }) {
 
       {/* Central node with organic blob - dynamically sized */}
       <div className="central-node">
-        <div 
+        <div
           className="blob-wrapper"
           style={{
             width: `${blobSize}px`,
@@ -476,24 +476,24 @@ function Canvas({ wordData, currentWord, isFading }) {
               <circle cx="240" cy="220" r="32" fill="#ccff33" fillOpacity="0.08" />
             </g>
 
-            <path 
-              d="M 200,90 C 260,82 310,120 325,170 C 340,220 318,275 270,300 C 220,325 155,315 115,280 C 75,245 70,185 95,140 C 120,95 165,88 200,90 Z" 
-              fill="url(#blobInner)" 
+            <path
+              d="M 200,90 C 260,82 310,120 325,170 C 340,220 318,275 270,300 C 220,325 155,315 115,280 C 75,245 70,185 95,140 C 120,95 165,88 200,90 Z"
+              fill="url(#blobInner)"
               stroke="rgba(204,255,51,0.45)"
-              strokeWidth="1.2" 
+              strokeWidth="1.2"
             />
 
-            <path 
-              d="M 200,110 C 250,103 290,135 305,175 C 320,215 305,260 265,285 C 220,310 165,300 130,270 C 95,240 90,190 110,155 C 130,120 170,108 200,110 Z" 
-              fill="none" 
-              stroke="rgba(204,255,51,0.18)" 
+            <path
+              d="M 200,110 C 250,103 290,135 305,175 C 320,215 305,260 265,285 C 220,310 165,300 130,270 C 95,240 90,190 110,155 C 130,120 170,108 200,110 Z"
+              fill="none"
+              stroke="rgba(204,255,51,0.18)"
               strokeWidth="0.8"
-              strokeDasharray="1 3" 
+              strokeDasharray="1 3"
             />
           </svg>
         </div>
         <div className={`central-word ${isTransitioning ? 'fade-out' : ''}`}>
-          <span 
+          <span
             className="word"
             style={{ fontSize: `${getCentralFontSize()}px` }}
           >
@@ -508,7 +508,7 @@ function Canvas({ wordData, currentWord, isFading }) {
           const pos = wordPositions[index]
           const tier = index % 3
           const fontSize = getFontSize(tier)
-          
+
           return (
             <div
               key={index}
