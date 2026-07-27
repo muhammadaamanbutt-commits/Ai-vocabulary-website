@@ -59,7 +59,9 @@ function Canvas({ wordData, currentWord, isFading }) {
   const getFontSize = (baseSize) => {
     const scaleFactor = getScaleFactor()
     const scaled = baseSize * scaleFactor
-    const minSize = baseSize <= 14 ? 11 : 12 // Different floors for different base sizes
+    const isMobile = dimensions.width < 768
+    // Higher minimum sizes on mobile for better readability
+    const minSize = isMobile ? (baseSize <= 14 ? 14 : 16) : (baseSize <= 14 ? 11 : 12)
     return Math.max(scaled, minSize)
   }
   
@@ -88,12 +90,14 @@ function Canvas({ wordData, currentWord, isFading }) {
     const positions = []
     const centerX = dimensions.width / 2
     const centerY = dimensions.height / 2
-    const baseRadius = Math.min(dimensions.width, dimensions.height) * 0.28
+    // Increase radius on mobile for better spread
+    const isMobile = dimensions.width < 768
+    const baseRadius = Math.min(dimensions.width, dimensions.height) * (isMobile ? 0.35 : 0.28)
     
-    // Calculate safe margins - 12% from each edge to prevent overflow
-    // Increased from 8% to ensure words never go outside at any screen size
-    const safeMarginX = dimensions.width * 0.12
-    const safeMarginY = dimensions.height * 0.12
+    // Reduce margins on mobile to use more space, but keep words visible
+    const marginPercent = isMobile ? 0.08 : 0.12
+    const safeMarginX = dimensions.width * marginPercent
+    const safeMarginY = dimensions.height * marginPercent
     const minX = safeMarginX
     const maxX = dimensions.width - safeMarginX
     const minY = safeMarginY
@@ -109,7 +113,10 @@ function Canvas({ wordData, currentWord, isFading }) {
       let radiusMultiplier = 1 + (tier * 0.18)
       
       // Calculate font size based on tier
-      const baseFontSize = tier === 0 ? 16 : tier === 1 ? 14 : 12
+      const isMobile = dimensions.width < 768
+      const baseFontSize = isMobile 
+        ? (tier === 0 ? 20 : tier === 1 ? 18 : 16)  // Larger on mobile
+        : (tier === 0 ? 16 : tier === 1 ? 14 : 12)  // Normal on desktop
       const fontSize = getFontSize(baseFontSize)
       
       while (!positioned && attempts < 20) {

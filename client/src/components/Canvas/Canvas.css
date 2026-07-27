@@ -5,7 +5,7 @@
   margin: 0 auto;
   overflow: hidden;
   background: radial-gradient(ellipse 60% 50% at center, #1a1a1a 0%, #0d0d0d 60%, #080808 100%);
-  
+
   /* Desktop: Account for sidebars (256px left + 380px right = 636px) */
   /* Ensure canvas is at least 75% of available viewport space */
   max-width: min(100vw, 90vh);
@@ -358,7 +358,7 @@
   .cluster-word.clickable:hover::after {
     width: 80%;
   }
-  
+
   .cluster-word:hover {
     color: var(--accent) !important;
     font-size: clamp(18px, 3vw, 26px) !important;
@@ -409,12 +409,12 @@
 /* Mobile - full width with proper padding */
 @media (max-width: 767px) {
   .canvas {
-    max-width: 95vw;
-    max-height: min(70vh, 95vw);
-    min-width: clamp(320px, 80vw, 500px);
-    min-height: clamp(320px, 60vh, 500px);
+    max-width: 98vw;
+    max-height: min(80vh, 98vw);
+    min-width: clamp(340px, 90vw, 600px);
+    min-height: clamp(400px, 70vh, 600px);
   }
-  
+
   .cluster-word {
     padding: 8px 12px;
   }
@@ -423,9 +423,22 @@
 /* Very small screens - maintain minimum usability */
 @media (max-width: 400px) {
   .canvas {
-    min-width: 320px;
-    min-height: 320px;
-    max-height: 65vh;
+    min-width: 340px;
+    min-height: 400px;
+    max-height: 70vh;
+  }
+}
+
+/* Mobile-specific font size scaling */
+@media (max-width: 767px) {
+
+  .cluster-word:hover,
+  .cluster-word:active {
+    font-size: clamp(20px, 4vw, 28px) !important;
+  }
+
+  .central-word .word {
+    font-size: clamp(28px, 6vw, 38px) !important;
   }
 }
 
@@ -435,7 +448,7 @@
     /* Touch targets already enforced at 44x44px minimum via inline styles */
     padding: 10px 14px;
   }
-  
+
   .cluster-word:active {
     color: var(--accent) !important;
     transform: translate(-50%, -50%) scale(1.1);
