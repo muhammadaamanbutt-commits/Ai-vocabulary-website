@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import SearchModal from '../SearchModal/SearchModal'
+import logo from "../../../assets/logo.png"
 import './Navigation.css'
 
 function Navigation() {
@@ -64,8 +65,12 @@ function Navigation() {
   return (
     <>
       <nav className="nav">
-        <Link to="/" className="logo">
-          <div className="logo-mark"></div>
+        <Link to="/" className="logo" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <img
+            src={logo}
+            alt="Semantic Compass Logo"
+            style={{ width: 28, height: 28, objectFit: 'contain' }}
+          />
           <span className="logo-wordmark">Semantic Compass</span>
         </Link>
 
@@ -78,8 +83,8 @@ function Navigation() {
 
         <div className="nav-right">
           {/* Hamburger menu button - visible only on mobile */}
-          <button 
-            className="hamburger-btn" 
+          <button
+            className="hamburger-btn"
             onClick={toggleMenu}
             aria-label="Toggle menu"
             aria-expanded={isMenuOpen}
@@ -105,14 +110,14 @@ function Navigation() {
       </nav>
 
       {/* Overlay */}
-      <div 
+      <div
         className={`menu-overlay ${isMenuOpen ? 'open' : ''}`}
         onClick={closeMenu}
         aria-hidden={!isMenuOpen}
       ></div>
 
       {/* Mobile slide-in drawer */}
-      <div 
+      <div
         ref={drawerRef}
         className={`mobile-drawer ${isMenuOpen ? 'open' : ''}`}
         role="dialog"
@@ -120,8 +125,8 @@ function Navigation() {
       >
         <div className="drawer-header">
           <span className="drawer-title">Menu</span>
-          <button 
-            className="drawer-close-btn" 
+          <button
+            className="drawer-close-btn"
             onClick={closeMenu}
             aria-label="Close menu"
           >
@@ -132,7 +137,7 @@ function Navigation() {
           </button>
         </div>
         <ul className="mobile-nav-links">
-          <li 
+          <li
             className={location.pathname === '/exploration' ? 'active' : ''}
             onClick={closeMenu}
           >

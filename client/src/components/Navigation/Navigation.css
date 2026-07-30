@@ -40,7 +40,7 @@
   flex-shrink: 0;
 }
 
-.logo-mark::before {
+/* .logo-mark::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -57,7 +57,7 @@
   background: #0a0a0a;
   border-radius: 50%;
   z-index: 1;
-}
+} */
 
 .nav-links {
   display: flex;
