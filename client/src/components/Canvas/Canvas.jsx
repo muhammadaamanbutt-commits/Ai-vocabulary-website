@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Canvas.css'
 
-function Canvas({ wordData, currentWord, isFading }) {
+function Canvas({ wordData, currentWord, isFading, clickedWord, onWordClick }) {
   const navigate = useNavigate()
   const [animatingWord, setAnimatingWord] = useState(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
@@ -345,7 +345,7 @@ function Canvas({ wordData, currentWord, isFading }) {
             <span
               className="word loading-text"
             >
-              Meaning...
+              {clickedWord || currentWord}...
             </span>
           </div>
         </div>
@@ -358,6 +358,17 @@ function Canvas({ wordData, currentWord, isFading }) {
 
   const handleWordClick = (word, event) => {
     const clickedElement = event.currentTarget
+    const rect = clickedElement.getBoundingClientRect()
+    const position = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    }
+
+    // Notify parent component if callback is provided
+    if (onWordClick) {
+      onWordClick(word, position)
+    }
+
     setAnimatingWord(word)
     setIsTransitioning(true)
 
@@ -530,7 +541,7 @@ function Canvas({ wordData, currentWord, isFading }) {
           return (
             <div
               key={index}
-              className={`cluster-word clickable ${tier === 0 ? 'near' : tier === 1 ? 'medium' : 'far'} ${animatingWord === word ? 'animating-to-center' : ''} ${hoveredWord && hoveredWord !== word ? 'blurred' : ''} ${hoveredWord === word ? 'active-hover' : ''}`}
+              className={`cluster-word clickable ${tier === 0 ? 'near' : tier === 1 ? 'medium' : 'far'} ${animatingWord === word ? 'animating-to-center' : ''} ${animatingWord && animatingWord !== word ? 'fade-sibling' : ''} ${hoveredWord && hoveredWord !== word ? 'blurred' : ''} ${hoveredWord === word ? 'active-hover' : ''}`}
               style={{
                 left: `${pos.x}px`,
                 top: `${pos.y}px`,
@@ -539,7 +550,8 @@ function Canvas({ wordData, currentWord, isFading }) {
                 minHeight: '44px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                '--index': index
               }}
               onClick={(e) => handleWordClick(word, e)}
               onMouseEnter={() => !isTouchDevice && setHoveredWord(word)}

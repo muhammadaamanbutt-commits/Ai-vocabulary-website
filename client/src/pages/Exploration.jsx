@@ -17,6 +17,7 @@ function Exploration() {
   const [isFading, setIsFading] = useState(false)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('map') // 'map' or 'definition'
+  const [clickedWord, setClickedWord] = useState(null)
   const wordDataCache = useRef({}) // Cache to store fetched word data
   
   // Check if we should use mock data (development mode)
@@ -50,11 +51,13 @@ function Exploration() {
           // Use cached data - still show brief loading for smooth transition
           await new Promise(resolve => setTimeout(resolve, 100))
           setWordData(wordDataCache.current[word])
+          setClickedWord(null)
           setLoading(false)
           setIsFading(false)
         } else {
           // Fetch new data
           await fetchWordData(word)
+          setClickedWord(null)
           setIsFading(false)
         }
       }, 300) // Wait for fade out to complete
@@ -98,6 +101,11 @@ function Exploration() {
 
   const closeDrawer = () => {
     setIsDrawerOpen(false)
+  }
+
+  const handleWordClick = (word, position) => {
+    // Store the clicked word for the loading state
+    setClickedWord(word)
   }
 
   // Close drawer when switching to Definition tab
@@ -219,7 +227,13 @@ function Exploration() {
         {/* Content Area */}
         <div className={`content-wrapper ${activeTab === 'definition' ? 'show-definition' : 'show-map'}`}>
           <div className="canvas-container">
-            <Canvas wordData={wordData} currentWord={currentWord} isFading={isFading} />
+            <Canvas 
+              wordData={wordData} 
+              currentWord={currentWord} 
+              isFading={isFading}
+              clickedWord={clickedWord}
+              onWordClick={handleWordClick}
+            />
           </div>
           <div className="detail-container">
             <DetailPanel wordData={wordData} currentWord={currentWord} isFading={isFading} />

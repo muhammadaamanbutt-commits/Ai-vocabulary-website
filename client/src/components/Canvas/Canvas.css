@@ -95,6 +95,7 @@
 
 .canvas.fading .connection-lines {
   opacity: 0.2;
+  transition: opacity 0.4s ease;
 }
 
 .connection-lines line {
@@ -119,6 +120,7 @@
 
 .canvas.fading .central-node {
   opacity: 0.3;
+  transition: opacity 0.4s ease;
 }
 
 .blob-wrapper {
@@ -246,6 +248,7 @@
 
 .canvas.fading .cluster-container {
   opacity: 0.15;
+  transition: opacity 0.4s ease;
 }
 
 .cluster-word {
@@ -258,7 +261,8 @@
   padding: 4px 6px;
   user-select: none;
   font-weight: 400;
-  animation: clusterEnter 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  animation: clusterEnter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  animation-delay: calc(var(--index) * 0.05s);
   text-shadow: 0 1px 5px rgba(0, 0, 0, 0.9);
   /* Font size and position set dynamically via inline styles */
 }
@@ -285,6 +289,13 @@
     opacity: 0.7;
     transform: translate(-50%, -50%) scale(1);
   }
+}
+
+/* Fade effect for sibling nodes when one is animating to center */
+.cluster-word.fade-sibling {
+  opacity: 0.1;
+  transform: translate(-50%, -50%) scale(0.85);
+  transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
 /* Visual hierarchy: tier-based styling */
@@ -335,7 +346,7 @@
 
 /* Animation for word moving to center */
 .cluster-word.animating-to-center {
-  animation: moveToCenter 0.6s ease forwards !important;
+  animation: moveToCenter 0.8s cubic-bezier(0.4, 0.0, 0.2, 1) forwards !important;
   z-index: 100 !important;
   pointer-events: none !important;
 }
@@ -346,10 +357,10 @@
     opacity: 1;
   }
 
-  50% {
+  60% {
     left: 50% !important;
     top: 50% !important;
-    transform: translate(-50%, -50%) scale(1.8);
+    transform: translate(-50%, -50%) scale(1.5);
     opacity: 1;
     color: var(--accent);
     font-weight: 600 !important;
